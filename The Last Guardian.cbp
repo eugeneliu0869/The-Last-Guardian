@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="The Last Guardian" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin/Debug/The Last Guardian" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+				</Compiler>
+				<Linker>
+					<Add library="allegro-5.0.10-mingw-4.7.0/lib/liballegro-5.0.10-monolith-mt-debug.a" />
+				</Linker>
+			</Target>
+			<Target title="Release">
+				<Option output="bin/Release/The Last Guardian" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+					<Add library="allegro-5.0.10-mingw-4.7.0/lib/liballegro-5.0.10-monolith-mt.a" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+			<Add option="-fexceptions" />
+			<Add directory="allegro-5.0.10-mingw-4.7.0/include" />
+		</Compiler>
+		<Unit filename="Circle.cpp" />
+		<Unit filename="Circle.h" />
+		<Unit filename="ExitScene.cpp" />
+		<Unit filename="ExitScene.h" />
+		<Unit filename="GameWindow.cpp" />
+		<Unit filename="GameWindow.h" />
+		<Unit filename="Main.cpp" />
+		<Unit filename="Map.h" />
+		<Unit filename="Menu.cpp" />
+		<Unit filename="Menu.h" />
+		<Unit filename="Minion.cpp" />
+		<Unit filename="Minion.h" />
+		<Unit filename="Object.h" />
+		<Unit filename="PauseScene.cpp" />
+		<Unit filename="PauseScene.h" />
+		<Unit filename="RangeAttack.h" />
+		<Unit filename="ResultScene.cpp" />
+		<Unit filename="ResultScene.h" />
+		<Unit filename="Saber.h" />
+		<Unit filename="ScoreBoard.cpp" />
+		<Unit filename="ScoreBoard.h" />
+		<Unit filename="SelectScene.cpp" />
+		<Unit filename="SelectScene.h" />
+		<Unit filename="SettingScene.cpp" />
+		<Unit filename="SettingScene.h" />
+		<Unit filename="Slider.cpp" />
+		<Unit filename="Slider.h" />
+		<Unit filename="StartScene.cpp" />
+		<Unit filename="StartScene.h" />
+		<Unit filename="Window.cpp" />
+		<Unit filename="Window.h" />
+		<Unit filename="global.cpp" />
+		<Unit filename="global.h" />
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<debugger />
+			<lib_finder disable_auto="1" />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>
