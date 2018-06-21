@@ -448,6 +448,11 @@ GameWindow::game_setting_scene(SettingScene* setting_scene)
 {
     int msg = GAME_SETTING;
 
+    if(!setting_scene->get_initial())
+    {
+        setting_scene->SceneInit();
+        setting_scene->toggle_initial();
+    }
     setting_scene->Draw();
 
     if(!al_is_event_queue_empty(event_queue))
@@ -582,10 +587,32 @@ GameWindow::process_event_setting_scene(SettingScene* setting_scene)
             return GAME_EXIT;
         }
     }
+    else if(event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN)
+    {
+        if(event.mouse.button == 1)
+        {
+            if(setting_scene->back_sound->isClicked(mouse_x, mouse_y))
+            {
+                setting_scene->back_sound->toggleDrag();
+            }
+            else if(setting_scene->effect_sound->isClicked(mouse_x, mouse_y))
+            {
+                setting_scene->effect_sound->toggleDrag();
+            }
+        }
+    }
     else if(event.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP)
     {
         if(event.mouse.button == 1)
         {
+            if(setting_scene->back_sound->isDragged())
+            {
+                setting_scene->back_sound->toggleDrag();
+            }
+            else if(setting_scene->effect_sound->isDragged())
+            {
+                setting_scene->effect_sound->toggleDrag();
+            }
             return setting_scene->LabelSelected(mouse_x, mouse_y);
         }
     }
@@ -593,6 +620,14 @@ GameWindow::process_event_setting_scene(SettingScene* setting_scene)
     {
         mouse_x = event.mouse.x;
         mouse_y = event.mouse.y;
+        if(setting_scene->back_sound->isDragged())
+        {
+            al_set_sample_instance_gain(background_Sound, setting_scene->back_sound->Drag(mouse_x, mouse_y));
+        }
+        else if(setting_scene->effect_sound->isDragged())
+        {
+            al_set_sample_instance_gain(effect_Sound, setting_scene->effect_sound->Drag(mouse_x, mouse_y));
+        }
     }
 
     return GAME_SETTING;
