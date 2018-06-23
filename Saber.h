@@ -9,7 +9,7 @@ public:
     Saber(int, int, int);
     ~Saber();
 
-    void LoadAnimation() override;
+    LoadAnimation();
     void LoadAttackAnimation() override;
 };
 
