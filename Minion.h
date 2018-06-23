@@ -26,15 +26,15 @@ public:
     bool OnTheBridge(double, double);
 
     void Draw();
-    /*virtual*/ void find_way();
-    /*virtual*/ void Move(); // return false if stop, including attack
+    void find_way();
+    void Move(); // return false if stop, including attack
 
-    /*virtual*/ void LoadAnimation();
-    /*virtual*/ void LoadAttackAnimation();
+    virtual void LoadAnimation() = 0;
+    virtual void LoadAttackAnimation() = 0;
 
     bool DetectAttack();
-    /*virtual*/ void TriggerAttack();
-    /*virtual*/ void UpdateAttack();
+    void TriggerAttack();
+    void UpdateAttack();
 
     int getHP() { return HealthPoint; }
     int getCost() { return cost; }

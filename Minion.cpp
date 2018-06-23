@@ -2,7 +2,6 @@
 
 const int axis_x[] = {-1, 1, 0, 0};
 const int axis_y[] = {0, 0, -1, 1};
-// for reading pictures, i.e. name/direction_name_xx.png
 const char direction_name[][10] = {"LEFT", "RIGHT", "UP", "DOWN"};
 
 // set counter frequency of drawing moving animation
@@ -27,6 +26,7 @@ Minion::Minion(int posx = 0, int posy = 0, int team = red_team)
     // name should be overrode
     strncpy(name, "Default", 30);
 
+    is_attack = false;
     cur_sprite = 0;
     counter = 0;
 }
@@ -102,6 +102,9 @@ Minion::Draw()
     al_draw_bitmap(moveImg[offset + cur_sprite], attack_circle->x - w/2, attack_circle->y - (h - grid_height/2), 0);
 
     //al_draw_filled_circle(circle->x, circle->y, circle->r, al_map_rgba(196, 79, 79, 200));
+
+    cout << "(" << attack_circle->x << "," << attack_circle->y << ")" << endl;
+    cout << "direction : " << cur_direction << endl;
 }
 
 void
@@ -225,18 +228,6 @@ Minion:: Move()
     {
         path_stage = HEADING_TO_TOWER;
     }
-}
-
-void
-Minion::LoadAnimation()
-{
-
-}
-
-void
-Minion::LoadAttackAnimation()
-{
-
 }
 
 void
