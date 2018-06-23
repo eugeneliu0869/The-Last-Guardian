@@ -20,7 +20,12 @@ void SelectScene::Draw()
 
 }
 
-int SelectScene::LabelSelected(int, int)
+int SelectScene::LabelSelected(double pos_x, double pos_y)
 {
-    return GAME_SELECT;
+
+}
+
+void SelectScene::LabelMouseHover(double pos_x, double pos_y)
+{
+
 }

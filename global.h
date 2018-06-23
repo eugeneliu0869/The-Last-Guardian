@@ -51,8 +51,8 @@ using namespace std;
 #define UPPER_BRIDGE_Y 100
 #define LOWER_BRIDGE_Y 400
 
-#define grid_width 20
-#define grid_height 20
+#define grid_width 5
+#define grid_height 5
 #define NumOfGrid (arena_field_width / grid_width) * (arena_field_height / grid_height)
 
 #define player_1_color al_map_rgb(255, 69, 0)

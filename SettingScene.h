@@ -20,17 +20,19 @@ public:
 
     void SceneInit() override;
     void Draw() override;
-    int LabelSelected(int, int) override;
+    int LabelSelected(double, double) override;
+    void LabelMouseHover(double, double) override;
 
-    Slider *back_sound;
-    Slider *effect_sound;
+    Slider* background_sound;
+    Slider* effect_sound;
 
 private:
     int title_x, title_y;
     int title_width = 450, title_height = 50;
 
-    int exit_label_x, exit_label_y;
-    int exit_label_width = 100, exit_label_height = 30;
+    bool back_label_mouse_hover = false;
+    int back_label_x, back_label_y;
+    int back_label_width = 100, back_label_height = 30;
 };
 
 #endif // SETTINGSCENE_H_INCLUDED

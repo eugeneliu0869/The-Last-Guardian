@@ -20,7 +20,12 @@ void ExitScene::Draw()
 
 }
 
-int ExitScene::LabelSelected(int, int)
+int ExitScene::LabelSelected(double pos_x, double pos_y)
 {
-    return GAME_EXIT;
+
+}
+
+void ExitScene::LabelMouseHover(double pos_x, double pos_y)
+{
+
 }

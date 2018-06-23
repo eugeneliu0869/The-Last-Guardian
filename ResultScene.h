@@ -18,7 +18,8 @@ public:
 
     void SceneInit() override;
     void Draw() override;
-    int LabelSelected(int, int) override;
+    int LabelSelected(double, double) override;
+    void LabelMouseHover(double, double) override;
 };
 
 #endif // RESULTSCENE_H_INCLUDED

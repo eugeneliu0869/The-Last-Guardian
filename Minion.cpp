@@ -103,8 +103,8 @@ Minion::Draw()
 
     //al_draw_filled_circle(circle->x, circle->y, circle->r, al_map_rgba(196, 79, 79, 200));
 
-    cout << "(" << attack_circle->x << "," << attack_circle->y << ")" << endl;
-    cout << "direction : " << cur_direction << endl;
+    //cout << "(" << attack_circle->x << "," << attack_circle->y << ")" << endl;
+    //cout << "direction : " << cur_direction << endl;
 }
 
 void

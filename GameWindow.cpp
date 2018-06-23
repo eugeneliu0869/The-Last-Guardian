@@ -142,7 +142,7 @@ GameWindow::game_init()
     }
 
     al_set_display_icon(display, icon);
-    al_reserve_samples(3);
+    al_reserve_samples(4);
 
     sample = al_load_sample("./sound/RunScene/StartSound.ogg");
     start_sound = al_create_sample_instance(sample);
@@ -154,12 +154,17 @@ GameWindow::game_init()
     al_set_sample_instance_playmode(background_sound, ALLEGRO_PLAYMODE_ONCE);
     al_attach_sample_instance_to_mixer(background_sound, al_get_default_mixer());
 
+    sample = al_load_sample("./sound/RunScene/EffectSound.ogg");
+    effect_sound = al_create_sample_instance(sample);
+    al_set_sample_instance_playmode(effect_sound, ALLEGRO_PLAYMODE_ONCE);
+    al_attach_sample_instance_to_mixer(effect_sound, al_get_default_mixer());
+
     sample = al_load_sample("./sound/RunScene/ResultSound.ogg");
     result_sound = al_create_sample_instance(sample);
     al_set_sample_instance_playmode(result_sound, ALLEGRO_PLAYMODE_ONCE);
     al_attach_sample_instance_to_mixer(result_sound, al_get_default_mixer());
 
-    if(start_sound == NULL || background == NULL || result_sound == NULL)
+    if(start_sound == NULL || background == NULL || effect_sound == NULL || result_sound == NULL)
     {
         show_error_message("Game run scene sounds loading fail.");
     }
@@ -271,14 +276,14 @@ GameWindow::game_play()
                 break;*/
         }
     }
-    /*
+
     delete start_scene;
     delete setting_scene;
     delete select_scene;
     delete pause_scene;
     delete result_scene;
     delete exit_scene;
-    */
+
     show_error_message("Game terminate.");
 }
 
@@ -297,6 +302,7 @@ GameWindow::game_reset()
     // stop sample instance
     al_stop_sample_instance(start_sound);
     al_stop_sample_instance(background_sound);
+    al_stop_sample_instance(effect_sound);
     al_stop_sample_instance(result_sound);
 
     // stop timer
@@ -324,6 +330,7 @@ GameWindow::game_destroy()
     al_destroy_sample(sample);
     al_destroy_sample_instance(start_sound);
     al_destroy_sample_instance(background_sound);
+    al_destroy_sample_instance(effect_sound);
     al_destroy_sample_instance(result_sound);
 }
 // end of game control function
@@ -448,6 +455,11 @@ GameWindow::game_setting_scene(SettingScene* setting_scene)
 {
     int msg = GAME_SETTING;
 
+    if(!setting_scene->get_initial())
+    {
+        setting_scene->SceneInit();
+        setting_scene->toggle_initial();
+    }
     setting_scene->Draw();
 
     if(!al_is_event_queue_empty(event_queue))
@@ -561,6 +573,8 @@ GameWindow::process_event_start_scene(StartScene* start_scene)
     {
         mouse_x = event.mouse.x;
         mouse_y = event.mouse.y;
+
+        start_scene->LabelMouseHover(mouse_x, mouse_y);
     }
 
     return GAME_INIT;
@@ -582,10 +596,37 @@ GameWindow::process_event_setting_scene(SettingScene* setting_scene)
             return GAME_EXIT;
         }
     }
+    else if(event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN)
+    {
+        if(event.mouse.button == 1)
+        {
+            if(setting_scene->background_sound->isClicked(mouse_x, mouse_y))
+            {
+                setting_scene->background_sound->toggleDrag();
+            }
+            else if(setting_scene->effect_sound->isClicked(mouse_x, mouse_y))
+            {
+                setting_scene->effect_sound->toggleDrag();
+            }
+        }
+    }
     else if(event.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP)
     {
         if(event.mouse.button == 1)
         {
+            if(setting_scene->background_sound->isDragged())
+            {
+                setting_scene->background_sound->toggleDrag();
+            }
+            else if(setting_scene->effect_sound->isDragged())
+            {
+                setting_scene->effect_sound->toggleDrag();
+            }
+
+            if(setting_scene->LabelSelected(mouse_x, mouse_y) == GAME_BACK)
+            {
+                return back_scene;
+            }
             return setting_scene->LabelSelected(mouse_x, mouse_y);
         }
     }
@@ -593,6 +634,17 @@ GameWindow::process_event_setting_scene(SettingScene* setting_scene)
     {
         mouse_x = event.mouse.x;
         mouse_y = event.mouse.y;
+
+        setting_scene->LabelMouseHover(mouse_x, mouse_y);
+
+        if(setting_scene->background_sound->isDragged())
+        {
+            al_set_sample_instance_gain(background_sound, setting_scene->background_sound->Drag(mouse_x, mouse_y));
+        }
+        else if(setting_scene->effect_sound->isDragged())
+        {
+            al_set_sample_instance_gain(effect_sound, setting_scene->effect_sound->Drag(mouse_x, mouse_y));
+        }
     }
 
     return GAME_SETTING;
@@ -625,6 +677,8 @@ GameWindow::process_event_select_scene(SelectScene* select_scene)
     {
         mouse_x = event.mouse.x;
         mouse_y = event.mouse.y;
+
+        select_scene->LabelMouseHover(mouse_x, mouse_y);
     }
 
     return GAME_SELECT;
@@ -676,7 +730,6 @@ GameWindow::process_event_run_scene()
                 {
                     al_stop_timer(timer);
                     back_scene = GAME_CONTINUE;
-                    cout << "Game pause.\n";
                     return GAME_PAUSE;
                 }
                 else
@@ -837,7 +890,7 @@ GameWindow::process_event_pause_scene(PauseScene* pause_scene)
     {
         if(event.mouse.button == 1)
         {
-            if(pause_scene->LabelSelected(mouse_x, mouse_y) == GAME_BACK)
+            if(pause_scene->LabelSelected(mouse_x, mouse_y) == GAME_CONTINUE)
             {
                 pause = !pause;
                 al_start_timer(timer);
@@ -845,7 +898,12 @@ GameWindow::process_event_pause_scene(PauseScene* pause_scene)
                 cout << "Game continue.\n";
                 return GAME_CONTINUE;
             }
-            else if(pause_scene->LabelSelected(mouse_x, mouse_y) == GAME_CONTINUE)
+            else if(pause_scene->LabelSelected(mouse_x, mouse_y) == GAME_SETTING)
+            {
+                back_scene = GAME_PAUSE;
+                return GAME_SETTING;
+            }
+            else if(pause_scene->LabelSelected(mouse_x, mouse_y) == GAME_BACK)
             {
                 pause = !pause;
                 al_start_timer(timer);
@@ -864,6 +922,8 @@ GameWindow::process_event_pause_scene(PauseScene* pause_scene)
     {
         mouse_x = event.mouse.x;
         mouse_y = event.mouse.y;
+
+        pause_scene->LabelMouseHover(mouse_x, mouse_y);
     }
 
     return GAME_PAUSE;
@@ -896,6 +956,8 @@ GameWindow::process_event_result_scene(ResultScene* result_scene)
     {
         mouse_x = event.mouse.x;
         mouse_y = event.mouse.y;
+
+        result_scene->LabelMouseHover(mouse_x, mouse_y);
     }
 
     return GAME_RESULT;
@@ -928,6 +990,8 @@ GameWindow::process_event_exit_scene(ExitScene* exit_scene)
     {
         mouse_x = event.mouse.x;
         mouse_y = event.mouse.y;
+
+        exit_scene->LabelMouseHover(mouse_x, mouse_y);
     }
 
     return GAME_EXIT;

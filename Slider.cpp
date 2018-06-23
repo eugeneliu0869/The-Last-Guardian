@@ -34,8 +34,6 @@ Slider::Draw()
     al_draw_line(track_x, track_y, track_x + lengthOftrack, track_y, al_map_rgb(255, 255, 255), 2);
     al_draw_filled_rectangle(draw_x, draw_y, draw_x + widthOftarget, draw_y + heightOftarget, target_color);
     al_draw_text(font, al_map_rgb(255, 255, 255), al_get_display_width(al_get_current_display()) / 2, track_y - 50, ALLEGRO_ALIGN_CENTER, label);
-
-    al_draw_text(font, al_map_rgb(255, 255, 255), 400, 450, ALLEGRO_ALIGN_CENTER, "PRESS ESC TO RETURN");
 }
 
 void

@@ -112,6 +112,7 @@ private:
     ALLEGRO_SAMPLE* sample = NULL;
     ALLEGRO_SAMPLE_INSTANCE* start_sound = NULL;
     ALLEGRO_SAMPLE_INSTANCE* background_sound = NULL;
+    ALLEGRO_SAMPLE_INSTANCE* effect_sound = NULL;
     ALLEGRO_SAMPLE_INSTANCE* result_sound = NULL;
 
     // players' interface variables
