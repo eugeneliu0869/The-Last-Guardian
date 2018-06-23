@@ -16,11 +16,12 @@ public:
 
     void Draw();
 
-    void Set_Player_1_HolyWater(int);
-    void Set_Player_2_HolyWater(int);
+    void Set_Player_1_HolyWater(int value) { player_1_holy_water = value; }
+    void Set_Player_2_HolyWater(int value) { player_2_holy_water = value; }
 
-    void Change_Player_1_HolyWater(int);
-    void Change_Player_2_HolyWater(int);
+    int Get_Player_1_HolyWater() { return player_1_holy_water; }
+    int Get_Player_2_HolyWater() { return player_2_holy_water; }
+
     void Change_Player_1_Score(int);
     void Change_Player_2_Score(int);
 

@@ -15,6 +15,7 @@
 #define UPPER_BRIDGE 1
 #define LOWER_BRIDGE 2
 
+#define abs(x) ((x>0) ? x : -x)
 enum {LEFT=0, RIGHT, UP, DOWN};
 
 class Minion : public Object
@@ -27,9 +28,9 @@ public:
 
     void Draw();
     void find_way();
-    void Move(); // return false if stop, including attack
+    void Move();
 
-    virtual void LoadAnimation() = 0;
+    void LoadAnimation();
     virtual void LoadAttackAnimation() = 0;
 
     bool DetectAttack();
@@ -58,6 +59,7 @@ protected:
     int speed = 1;
     int cost = 5;
     char name[20];
+
     // set of animation images
     std::vector<ALLEGRO_BITMAP*> moveImg;
     std::vector<ALLEGRO_BITMAP*> attackImg;

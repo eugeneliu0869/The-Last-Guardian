@@ -5,7 +5,7 @@ GameWindow::GameWindow()
 {
     if(!al_init())
     {
-        show_error_message("Game initialization fail.");
+        show_error_message("Allegro 5 initialization fail.");
     }
 
     cout << "Game initializing...\n";
@@ -58,7 +58,9 @@ GameWindow::GameWindow()
 
 GameWindow::~GameWindow()
 {
-
+    delete score_board;
+    delete player_1_menu;
+    delete player_2_menu;
 }
 // end of constructor and destructor
 
@@ -127,16 +129,42 @@ GameWindow::create_minion(int selected_minion)
     return m;
 }
 
+// set game sounds' volume
+void GameWindow::set_background_sound_volume(double volume)
+{
+    background_sound_volume = volume;
+}
+
+void GameWindow::set_effect_sound_volume(double volume)
+{
+    effect_sound_volume = volume;
+}
+// end of set game sounds' volume
+
 // game control function
 void
 GameWindow::game_init()
 {
     srand(time(NULL));
 
-    icon = al_load_bitmap("./image/Icon.png");
-    background = al_load_bitmap("./image/RunScene/Background.png");
+    score_board = new ScoreBoard();
+    player_1_menu = new Menu(red_team);
+    player_2_menu = new Menu(blue_team);
 
-    if(icon == NULL || background == NULL)
+    icon = al_load_bitmap("./image/Icon.png");
+
+    char background_buffer[50], river_buffer[50], bridge_buffer[50];
+    game_map = 1;
+
+    sprintf(background_buffer, "./image/RunScene/Map_%d/Background.png", game_map);
+    sprintf(river_buffer, "./image/RunScene/Map_%d/River.png", game_map);
+    sprintf(bridge_buffer, "./image/RunScene/Map_%d/Bridge.png", game_map);
+
+    background = al_load_bitmap(background_buffer);
+    river = al_load_bitmap(river_buffer);
+    bridge = al_load_bitmap(bridge_buffer);
+
+    if(icon == NULL || background == NULL || river == NULL || bridge == NULL)
     {
         show_error_message("Game run scene images loading fail.");
     }
@@ -169,8 +197,6 @@ GameWindow::game_init()
         show_error_message("Game run scene sounds loading fail.");
     }
 
-    score_board = new ScoreBoard();
-
     // game control variables initialization
     redraw = false;
     mute = false;
@@ -183,37 +209,43 @@ GameWindow::game_init()
     player_2_holy_water_counter = 0;
     // end of players' interface variables initialization
 
-    // for debug usage
+    // for the debug usage
     Minion* m = create_minion(SABER);
     MinionSet.push_back(m);
-    // end of debug usage
+
+    player_1_minion_selected_source[0] = SABER;
+    player_1_minion_selected_source[1] = SABER1;
+    player_1_minion_selected_source[2] = SABER2;
+    player_1_minion_selected_source[3] = SABER3;
+    player_1_minion_selected_source[4] = SABER4;
+    player_1_minion_selected_source[5] = SABER5;
+    player_1_minion_selected_source[6] = SABER6;
+    player_1_minion_selected_source[7] = SABER7;
+    player_1_minion_selected_source[8] = SABER8;
+    player_1_minion_selected_source[9] = SABER9;
+    player_1_menu->Initial(player_1_minion_selected_source);
+
+    player_2_minion_selected_source[0] = SABER;
+    player_2_minion_selected_source[1] = SABER1;
+    player_2_minion_selected_source[2] = SABER2;
+    player_2_minion_selected_source[3] = SABER3;
+    player_2_minion_selected_source[4] = SABER4;
+    player_2_minion_selected_source[5] = SABER5;
+    player_2_minion_selected_source[6] = SABER6;
+    player_2_minion_selected_source[7] = SABER7;
+    player_2_minion_selected_source[8] = SABER8;
+    player_2_minion_selected_source[9] = SABER9;
+    player_2_menu->Initial(player_2_minion_selected_source);
+    // end of for the debug usage
 
     // player 1 initialization
     player_1_arena_field_control_pos_x = menu_width;
     player_1_arena_field_control_pos_y = scoreboard_height;
-
-    player_1_army_1_card_pos_x = player_army_card_horizontal_difference;
-    player_1_army_1_card_pos_y = scoreboard_height + player_army_card_top_difference;
-    player_1_army_2_card_pos_x = player_army_card_horizontal_difference;
-    player_1_army_2_card_pos_y = player_1_army_1_card_pos_y + player_army_card_height + player_army_card_vertical_difference;
-    player_1_army_3_card_pos_x = player_army_card_horizontal_difference;
-    player_1_army_3_card_pos_y = player_1_army_2_card_pos_y + player_army_card_height + player_army_card_vertical_difference;
-    player_1_army_4_card_pos_x = player_army_card_horizontal_difference;
-    player_1_army_4_card_pos_y = player_1_army_3_card_pos_y + player_army_card_height + player_army_card_vertical_difference;
     // end of player 1 initialization
 
     // player 2 initialization
     player_2_arena_field_control_pos_x = window_width - menu_width - arena_field_width;
     player_2_arena_field_control_pos_y = scoreboard_height;
-
-    player_2_army_1_card_pos_x = window_width - menu_width + player_army_card_horizontal_difference;
-    player_2_army_1_card_pos_y = scoreboard_height + player_army_card_top_difference;
-    player_2_army_2_card_pos_x = window_width - menu_width + player_army_card_horizontal_difference;
-    player_2_army_2_card_pos_y = player_2_army_1_card_pos_y + player_army_card_height + player_army_card_vertical_difference;
-    player_2_army_3_card_pos_x = window_width - menu_width + player_army_card_horizontal_difference;
-    player_2_army_3_card_pos_y = player_2_army_2_card_pos_y + player_army_card_height + player_army_card_vertical_difference;
-    player_2_army_4_card_pos_x = window_width - menu_width + player_army_card_horizontal_difference;
-    player_2_army_4_card_pos_y = player_2_army_3_card_pos_y + player_army_card_height + player_army_card_vertical_difference;
     // end of player 2 initialization
 }
 
@@ -223,13 +255,9 @@ GameWindow::game_begin()
     cout << "Game start.\n";
 
     draw_running_animation();
-    /*
-    al_play_sample_instance(start_sound);
-    while(al_get_sample_instance_playing(start_sound));
-    {
-        al_play_sample_instance(background_sound);
-    }
-    */
+
+    al_play_sample_instance(background_sound);
+
     al_start_timer(timer);
 }
 
@@ -247,6 +275,11 @@ GameWindow::game_play()
 
     while(msg != GAME_EXIT)
     {
+        al_set_sample_instance_gain(start_sound, background_sound_volume);
+        al_set_sample_instance_gain(background_sound, background_sound_volume);
+        al_set_sample_instance_gain(effect_sound, effect_sound_volume);
+        al_set_sample_instance_gain(result_sound, background_sound_volume);
+
         switch(msg)
         {
             case GAME_INIT:
@@ -299,6 +332,10 @@ GameWindow::game_reset()
     // score board reset
     score_board->Reset();
 
+    // menu reset
+    player_1_menu->Reset();
+    player_2_menu->Reset();
+
     // stop sample instance
     al_stop_sample_instance(start_sound);
     al_stop_sample_instance(background_sound);
@@ -318,6 +355,8 @@ GameWindow::game_destroy()
 
     al_destroy_bitmap(icon);
     al_destroy_bitmap(background);
+    al_destroy_bitmap(river);
+    al_destroy_bitmap(bridge);
 
     al_destroy_font(Small_font);
     al_destroy_font(Medium_font);
@@ -339,22 +378,24 @@ GameWindow::game_destroy()
 int
 GameWindow::draw_running_animation()
 {
-    // for the debug usage
-    // draw menu
-    al_draw_filled_rectangle(0, scoreboard_height, menu_width, window_height, al_map_rgb(150, 150, 150));
-    al_draw_filled_rectangle(window_width - menu_width, scoreboard_height, window_width, window_height, al_map_rgb(150, 150, 150));
-
-    // draw arena field and river
-    al_draw_filled_rectangle(menu_width, scoreboard_height,
-                             menu_width + arena_field_width, window_height, al_map_rgb(0, 205, 0));
-    al_draw_filled_rectangle(menu_width + arena_field_width, scoreboard_height,
-                             menu_width + arena_field_width + arena_river_width, window_height, al_map_rgb(135, 206, 235));
-    al_draw_filled_rectangle(window_width - menu_width - arena_field_width, scoreboard_height,
-                             window_width - menu_width, window_height, al_map_rgb(0, 205, 0));
-    // end of for the debug usage
+    // draw map
+    al_draw_bitmap(background, menu_width, scoreboard_height, 0);
+    al_draw_bitmap(river, menu_width + arena_field_width, scoreboard_height, 0);
+    al_draw_bitmap(bridge, window_width/2 - BRIDGE_WIDTH/2, scoreboard_height + UPPER_BRIDGE_Y - BRIDGE_HEIGHT/2, 0); // draw upper bridge
+    al_draw_bitmap(bridge, window_width/2 - BRIDGE_WIDTH/2, scoreboard_height + LOWER_BRIDGE_Y - BRIDGE_HEIGHT/2, 0); // draw lower bridge
 
     // draw score board
     score_board->Draw();
+
+    //cout << "scoreboard->p1: " << score_board->Get_Player_1_HolyWater() << endl;
+    //cout << "scoreboard->p2: " << score_board->Get_Player_2_HolyWater() << endl;
+
+    // draw players' menu
+    player_1_menu->Draw();
+    player_2_menu->Draw();
+
+    //cout << "menu->p1: " << player_1_menu->getHolyWater() << endl;
+    //cout << "menu->p2: " << player_2_menu->getHolyWater() << endl;
 
     for(auto i : MinionSet)
     {
@@ -375,41 +416,6 @@ GameWindow::draw_running_animation()
                       player_2_arena_field_control_pos_x + player_arena_field_control_grid_width,
                       player_2_arena_field_control_pos_y + player_arena_field_control_grid_height,
                       player_2_color, player_arena_field_control_display_thickness);
-
-    // draw players' army card
-    al_draw_text(Small_font, player_1_color, player_1_army_1_card_pos_x, player_1_army_1_card_pos_y - 15, 0, "B");
-    al_draw_rectangle(player_1_army_1_card_pos_x, player_1_army_1_card_pos_y,
-                      player_1_army_1_card_pos_x + player_army_card_width, player_1_army_1_card_pos_y + player_army_card_height,
-                      player_1_color, player_army_card_display_thickness);
-    al_draw_text(Small_font, player_1_color, player_1_army_2_card_pos_x, player_1_army_2_card_pos_y - 15, 0, "N");
-    al_draw_rectangle(player_1_army_2_card_pos_x, player_1_army_2_card_pos_y,
-                      player_1_army_2_card_pos_x + player_army_card_width, player_1_army_2_card_pos_y + player_army_card_height,
-                      player_1_color, player_army_card_display_thickness);
-    al_draw_text(Small_font, player_1_color, player_1_army_3_card_pos_x, player_1_army_3_card_pos_y - 15, 0, "M");
-    al_draw_rectangle(player_1_army_3_card_pos_x, player_1_army_3_card_pos_y,
-                      player_1_army_3_card_pos_x + player_army_card_width, player_1_army_3_card_pos_y + player_army_card_height,
-                      player_1_color, player_army_card_display_thickness);
-    al_draw_text(Small_font, player_1_color, player_1_army_4_card_pos_x, player_1_army_4_card_pos_y - 15, 0, "G");
-    al_draw_rectangle(player_1_army_4_card_pos_x, player_1_army_4_card_pos_y,
-                      player_1_army_4_card_pos_x + player_army_card_width, player_1_army_4_card_pos_y + player_army_card_height,
-                      player_1_color, player_army_card_display_thickness);
-
-    al_draw_text(Small_font, player_2_color, player_2_army_1_card_pos_x, player_2_army_1_card_pos_y - 15, 0, "1");
-    al_draw_rectangle(player_2_army_1_card_pos_x, player_1_army_1_card_pos_y,
-                      player_2_army_1_card_pos_x + player_army_card_width, player_2_army_1_card_pos_y + player_army_card_height,
-                      player_2_color, player_army_card_display_thickness);
-    al_draw_text(Small_font, player_2_color, player_2_army_2_card_pos_x, player_2_army_2_card_pos_y - 15, 0, "2");
-    al_draw_rectangle(player_2_army_2_card_pos_x, player_1_army_2_card_pos_y,
-                      player_2_army_2_card_pos_x + player_army_card_width, player_2_army_2_card_pos_y + player_army_card_height,
-                      player_2_color, player_army_card_display_thickness);
-    al_draw_text(Small_font, player_2_color, player_2_army_3_card_pos_x, player_2_army_3_card_pos_y - 15, 0, "3");
-    al_draw_rectangle(player_2_army_3_card_pos_x, player_1_army_3_card_pos_y,
-                      player_2_army_3_card_pos_x + player_army_card_width, player_2_army_3_card_pos_y + player_army_card_height,
-                      player_2_color, player_army_card_display_thickness);
-    al_draw_text(Small_font, player_2_color, player_2_army_4_card_pos_x, player_2_army_4_card_pos_y - 15, 0, "4");
-    al_draw_rectangle(player_2_army_4_card_pos_x, player_1_army_4_card_pos_y,
-                      player_2_army_4_card_pos_x + player_army_card_width, player_2_army_4_card_pos_y + player_army_card_height,
-                      player_2_color, player_army_card_display_thickness);
 
     al_flip_display();
 }
@@ -639,11 +645,11 @@ GameWindow::process_event_setting_scene(SettingScene* setting_scene)
 
         if(setting_scene->background_sound->isDragged())
         {
-            al_set_sample_instance_gain(background_sound, setting_scene->background_sound->Drag(mouse_x, mouse_y));
+            set_background_sound_volume(setting_scene->background_sound->Drag(mouse_x, mouse_y));
         }
         else if(setting_scene->effect_sound->isDragged())
         {
-            al_set_sample_instance_gain(effect_sound, setting_scene->effect_sound->Drag(mouse_x, mouse_y));
+            set_effect_sound_volume(setting_scene->effect_sound->Drag(mouse_x, mouse_y));
         }
     }
 
@@ -699,13 +705,13 @@ GameWindow::process_event_run_scene()
 
             if(player_1_holy_water_counter == 0)
             {
-                score_board->Change_Player_1_HolyWater(1);
+                player_1_menu->GainHolyWater(score_board, 1);
             }
             player_1_holy_water_counter = (player_1_holy_water_counter + 1) % holy_water_gain_speed;
 
             if(player_2_holy_water_counter == 0)
             {
-                score_board->Change_Player_2_HolyWater(1);
+                player_2_menu->GainHolyWater(score_board, 1);
             }
             player_2_holy_water_counter = (player_2_holy_water_counter + 1) % holy_water_gain_speed;
         }

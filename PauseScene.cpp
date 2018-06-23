@@ -25,8 +25,6 @@ PauseScene::~PauseScene()
 
 void PauseScene::SceneInit()
 {
-    cout << "Pause scene initializing...\n";
-
     title_x = (window_width - title_width)/2;
     title_y = title_top;
 
@@ -42,7 +40,7 @@ void PauseScene::SceneInit()
     back_label_x = window_width - back_label_width - label_difference * 1;
     back_label_y = window_height - back_label_height - label_difference * 1;
 
-    cout << "Pause scene drawing...\n";
+    cout << "Pause scene is initialized\n";
 }
 
 void PauseScene::Draw()

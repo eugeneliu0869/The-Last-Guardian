@@ -64,7 +64,11 @@ using namespace std;
 
 extern char ArmyClass[][30];
 
+extern double background_sound_volume;
+extern double effect_sound_volume;
+
 enum {red_team = 0, blue_team};
-enum {SABER = 0};
+enum {hotkey_1 = 0, hotkey_2, hotkey_3, hotkey_4};
+enum {SABER = 0, SABER1, SABER2, SABER3, SABER4, SABER5, SABER6, SABER7, SABER8, SABER9};
 
 #endif // GLOBAL_H_INCLUDED

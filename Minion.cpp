@@ -90,14 +90,6 @@ Minion::Draw()
     w = al_get_bitmap_width(moveImg[offset + cur_sprite]);
     h = al_get_bitmap_height(moveImg[offset + cur_sprite]);
 
-    // draw bridge -> for debug usage
-    al_draw_filled_rectangle(window_width/2 - BRIDGE_WIDTH/2, scoreboard_height + UPPER_BRIDGE_Y - BRIDGE_HEIGHT/2,
-                             window_width/2 + BRIDGE_WIDTH/2, scoreboard_height + UPPER_BRIDGE_Y + BRIDGE_HEIGHT/2,
-                             al_map_rgb(255, 255, 255));
-    al_draw_filled_rectangle(window_width/2 - BRIDGE_WIDTH/2, scoreboard_height + LOWER_BRIDGE_Y - BRIDGE_HEIGHT/2,
-                             window_width/2 + BRIDGE_WIDTH/2, scoreboard_height + LOWER_BRIDGE_Y + BRIDGE_HEIGHT/2,
-                             al_map_rgb(255, 255, 255));
-
     // draw bitmap align grid edge
     al_draw_bitmap(moveImg[offset + cur_sprite], attack_circle->x - w/2, attack_circle->y - (h - grid_height/2), 0);
 
@@ -157,35 +149,24 @@ Minion::find_way() // to find the values of unit_heading_x and unit_heading_y
             cout << "Error occurs !!" << endl;
     }
 
-    if (unit_heading_y == 0)
-    {
-        if (unit_heading_x > 0)
-            cur_direction = RIGHT;
-        else if (unit_heading_x < 0)
-            cur_direction = LEFT;
-    }
-    else
-    {
-        double rate = (double) unit_heading_x / unit_heading_y;
 
-        if (unit_heading_x >= 0)
+    if (unit_heading_x > 0)
+        cur_direction = RIGHT;
+    else if (unit_heading_x < 0)
+        cur_direction = LEFT;
+
+    if (unit_heading_y != 0)
+    {
+        double diff = (double) abs(unit_heading_x) - abs(unit_heading_y);
+
+        if (diff < 0)
         {
-            if (rate<=1 && rate>=-1)
-                cur_direction = RIGHT;
-            else if (rate > 1)
+            if (unit_heading_y > 0)
                 cur_direction = UP;
-            else if (rate < 1)
+            else
                 cur_direction = DOWN;
         }
-        else
-        {
-            if (rate<=1 && rate>=-1)
-                cur_direction = LEFT;
-            else if (rate > 1)
-                cur_direction = DOWN;
-            else if (rate < 1)
-                cur_direction = UP;
-        }
+
     }
 }
 
@@ -229,7 +210,26 @@ Minion:: Move()
         path_stage = HEADING_TO_TOWER;
     }
 }
+void
+Minion::LoadAnimation()
+{
+    char buffer[50];
 
+    for (int i=0; i<4; i++)
+    {
+        for (int j=0; j<dir_sprite[i]; j++)
+        {
+            ALLEGRO_BITMAP *img;
+            sprintf(buffer, "./image/Minion/%s/%s_%d.png", name, direction_name[i], j+1);
+
+            img = al_load_bitmap(buffer);
+            if (img)
+                moveImg.push_back(img);
+            else
+                cout << "LoadAnimation failed!" << endl;
+        }
+    }
+}
 void
 Minion::TriggerAttack()
 {

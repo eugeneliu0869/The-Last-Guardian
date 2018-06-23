@@ -13,7 +13,7 @@ Saber::Saber(int posx, int posy, int team) : Minion(posx, posy, team)
     cost = 5;
     strcpy(name, "Saber");
 
-    LoadAnimation();
+    Minion::LoadAnimation();
     //LoadAttackAnimation();
 }
 
@@ -22,44 +22,7 @@ Saber::~Saber()
 
 }
 
-void
-Saber::LoadAnimation()
-{
-    ALLEGRO_BITMAP* tmp;
-    moveImg.clear();
 
-    // load LEFT move image
-    tmp = al_load_bitmap("./image/Minion/Saber/LEFT_1.png");
-    moveImg.push_back(tmp);
-    tmp = al_load_bitmap("./image/Minion/Saber/LEFT_2.png");
-    moveImg.push_back(tmp);
-    tmp = al_load_bitmap("./image/Minion/Saber/LEFT_3.png");
-    moveImg.push_back(tmp);
-
-    // load RIGHT move image
-    tmp = al_load_bitmap("./image/Minion/Saber/RIGHT_1.png");
-    moveImg.push_back(tmp);
-    tmp = al_load_bitmap("./image/Minion/Saber/RIGHT_2.png");
-    moveImg.push_back(tmp);
-    tmp = al_load_bitmap("./image/Minion/Saber/RIGHT_3.png");
-    moveImg.push_back(tmp);
-
-    // load UP move image
-    tmp = al_load_bitmap("./image/Minion/Saber/UP_1.png");
-    moveImg.push_back(tmp);
-    tmp = al_load_bitmap("./image/Minion/Saber/UP_2.png");
-    moveImg.push_back(tmp);
-    tmp = al_load_bitmap("./image/Minion/Saber/UP_3.png");
-    moveImg.push_back(tmp);
-
-    // load DOWN move image
-    tmp = al_load_bitmap("./image/Minion/Saber/DOWN_1.png");
-    moveImg.push_back(tmp);
-    tmp = al_load_bitmap("./image/Minion/Saber/DOWN_2.png");
-    moveImg.push_back(tmp);
-    tmp = al_load_bitmap("./image/Minion/Saber/DOWN_3.png");
-    moveImg.push_back(tmp);
-}
 
 void
 Saber::LoadAttackAnimation()

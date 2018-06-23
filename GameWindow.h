@@ -52,6 +52,10 @@ public:
     // create minion
     Minion* create_minion(int);
 
+    // set game sounds' volume
+    void set_background_sound_volume(double);
+    void set_effect_sound_volume(double);
+
     // game control function
     void game_init();
     void game_begin();
@@ -83,10 +87,6 @@ public:
     int process_event_result_scene(ResultScene*);
     int process_event_exit_scene(ExitScene*);
 
-    // game volume variable
-    static float background_volume;
-    static float effect_volume;
-
     // game control variables
     bool redraw = false;
     bool mute = false;
@@ -94,10 +94,16 @@ public:
     int back_scene = GAME_INIT;
 
 private:
+    ScoreBoard* score_board;
+    Menu* player_1_menu;
+    Menu* player_2_menu;
+
     ALLEGRO_DISPLAY* display = NULL;
 
-    ALLEGRO_BITMAP* icon;
+    ALLEGRO_BITMAP* icon = NULL;
     ALLEGRO_BITMAP* background = NULL;
+    ALLEGRO_BITMAP* river = NULL;
+    ALLEGRO_BITMAP* bridge = NULL;
 
     ALLEGRO_FONT* Small_font = NULL;
     ALLEGRO_FONT* Medium_font = NULL;
@@ -110,10 +116,13 @@ private:
     ALLEGRO_TIMER* timer = NULL;
 
     ALLEGRO_SAMPLE* sample = NULL;
-    ALLEGRO_SAMPLE_INSTANCE* start_sound = NULL;
-    ALLEGRO_SAMPLE_INSTANCE* background_sound = NULL;
-    ALLEGRO_SAMPLE_INSTANCE* effect_sound = NULL;
-    ALLEGRO_SAMPLE_INSTANCE* result_sound = NULL;
+    ALLEGRO_SAMPLE_INSTANCE* start_sound = NULL; // classified as background sound
+    ALLEGRO_SAMPLE_INSTANCE* background_sound = NULL; // classified as background sound
+    ALLEGRO_SAMPLE_INSTANCE* effect_sound = NULL; // classified as effect sound
+    ALLEGRO_SAMPLE_INSTANCE* result_sound = NULL; // classified as background sound
+
+    // the map that players choose, counting from 1 to ...
+    int game_map;
 
     // players' interface variables
     int holy_water_gain_speed;
@@ -123,36 +132,18 @@ private:
     // mouse control
     float mouse_x, mouse_y;
 
-    ScoreBoard* score_board;
-
     vector<Minion*> MinionSet;
 
     // player 1 is at left, player 2 is at right
     // player 1 control
+    int player_1_minion_selected_source[10];
     int player_1_arena_field_control_pos_x;
     int player_1_arena_field_control_pos_y;
 
-    int player_1_army_1_card_pos_x;
-    int player_1_army_1_card_pos_y;
-    int player_1_army_2_card_pos_x;
-    int player_1_army_2_card_pos_y;
-    int player_1_army_3_card_pos_x;
-    int player_1_army_3_card_pos_y;
-    int player_1_army_4_card_pos_x;
-    int player_1_army_4_card_pos_y;
-
     // player 2 control
+    int player_2_minion_selected_source[10];
     int player_2_arena_field_control_pos_x;
     int player_2_arena_field_control_pos_y;
-
-    int player_2_army_1_card_pos_x;
-    int player_2_army_1_card_pos_y;
-    int player_2_army_2_card_pos_x;
-    int player_2_army_2_card_pos_y;
-    int player_2_army_3_card_pos_x;
-    int player_2_army_3_card_pos_y;
-    int player_2_army_4_card_pos_x;
-    int player_2_army_4_card_pos_y;
 };
 
 #endif // GAMEWINDOW_H_INCLUDED
