@@ -14,21 +14,38 @@ SelectScene::SelectScene()
         map_set.push_back(tmp);
     }
 
-    title_font = al_load_ttf_font("./Caviar_Dreams_Bold.ttf", title_font_size, 0);
-    label_font = al_load_ttf_font("./Caviar_Dreams_Bold.ttf", label_font_size, 0);
-    context_font = al_load_ttf_font("./Caviar_Dreams_Bold.ttf", context_font_size, 0);
+    al_reserve_samples(3);
+
+    sample = al_load_sample("./sound/SelectScene/SwitchSound.ogg");
+    switch_sound = al_create_sample_instance(sample);
+    al_set_sample_instance_playmode(switch_sound, ALLEGRO_PLAYMODE_ONCE);
+    al_attach_sample_instance_to_mixer(switch_sound, al_get_default_mixer());
+
+    sample = al_load_sample("./sound/SelectScene/EnterSound.ogg");
+    enter_sound = al_create_sample_instance(sample);
+    al_set_sample_instance_playmode(enter_sound, ALLEGRO_PLAYMODE_ONCE);
+    al_attach_sample_instance_to_mixer(enter_sound, al_get_default_mixer());
+
+    sample = al_load_sample("./sound/SelectScene/DecisionSound.ogg");
+    decision_sound = al_create_sample_instance(sample);
+    al_set_sample_instance_playmode(decision_sound, ALLEGRO_PLAYMODE_ONCE);
+    al_attach_sample_instance_to_mixer(decision_sound, al_get_default_mixer());
+
+    title_font = al_load_ttf_font("./Hanyi_Yiyu.ttf", title_font_size, 0);
+    label_font = al_load_ttf_font("./Hanyi_Yiyu.ttf", label_font_size, 0);
+    context_font = al_load_ttf_font("./Hanyi_Yiyu.ttf", context_font_size, 0);
 
     title_color = al_map_rgb(0, 0, 0);
-    title_text_color = al_map_rgb(255, 255, 255);
+    title_text_color = al_map_rgb(255, 129, 0);
     label_color = al_map_rgb(0, 0, 0);
-    label_text_color = al_map_rgb(255, 255, 255);
+    label_text_color = al_map_rgb(255, 129, 0);
     context_color = al_map_rgb(0, 0, 0);
-    context_text_color = al_map_rgb(255, 255, 255);
+    context_text_color = al_map_rgb(255, 129, 0);
 
     mouse_hover_color = al_map_rgba(0, 0, 0, 150);
 
-    map_selected_color = al_map_rgb(0, 0, 0);
-    map_unselected_color = al_map_rgb(255, 255, 255);
+    map_selected_color = al_map_rgb(255, 165, 0);
+    map_unselected_color = al_map_rgb(238, 233, 233);
 }
 
 SelectScene::~SelectScene()
@@ -43,7 +60,7 @@ SelectScene::SceneInit()
     title_y = title_top;
 
     map_1_pos_x = map_difference_from_window_side;
-    map_1_pos_y = title_y + label_difference * 10;
+    map_1_pos_y = title_y + label_difference * 12;
 
     map_2_pos_x = map_1_pos_x + map_width + (window_width - map_difference_from_window_side * 2 - map_width * map_num) / (map_num - 1);
     map_2_pos_y = map_1_pos_y;
@@ -75,7 +92,7 @@ SelectScene::Draw()
     al_draw_text(title_font, title_text_color, title_x + title_width/2, title_y, ALLEGRO_ALIGN_CENTRE, "Game Select");
 
     al_draw_bitmap(map_set[0], map_1_pos_x, map_1_pos_y, 0);
-    al_draw_text(context_font, context_color, map_1_pos_x, map_1_pos_y - map_name_difference_from_image, 0, "Map 1");
+    al_draw_text(context_font, context_text_color, map_1_pos_x, map_1_pos_y - map_name_difference_from_image, 0, "Map 1");
     if(map_1_selected)
     {
         al_draw_rectangle(map_1_pos_x, map_1_pos_y, map_1_pos_x + map_width, map_1_pos_y + map_height, map_selected_color, map_display_frame_thinkness);
@@ -86,7 +103,7 @@ SelectScene::Draw()
     }
 
     al_draw_bitmap(map_set[1], map_2_pos_x, map_2_pos_y, 0);
-    al_draw_text(context_font, context_color, map_2_pos_x, map_2_pos_y - map_name_difference_from_image, 0, "Map 2");
+    al_draw_text(context_font, context_text_color, map_2_pos_x, map_2_pos_y - map_name_difference_from_image, 0, "Map 2");
     if(map_2_selected)
     {
         al_draw_rectangle(map_2_pos_x, map_2_pos_y, map_2_pos_x + map_width, map_2_pos_y + map_height, map_selected_color, map_display_frame_thinkness);
@@ -97,7 +114,7 @@ SelectScene::Draw()
     }
 
     al_draw_bitmap(map_set[2], map_3_pos_x, map_3_pos_y, 0);
-    al_draw_text(context_font, context_color, map_3_pos_x, map_3_pos_y - map_name_difference_from_image, 0, "Map 3");
+    al_draw_text(context_font, context_text_color, map_3_pos_x, map_3_pos_y - map_name_difference_from_image, 0, "Map 3");
     if(map_3_selected)
     {
         al_draw_rectangle(map_3_pos_x, map_3_pos_y, map_3_pos_x + map_width, map_3_pos_y + map_height, map_selected_color, map_display_frame_thinkness);
@@ -108,7 +125,7 @@ SelectScene::Draw()
     }
 
     al_draw_bitmap(map_set[3], map_4_pos_x, map_4_pos_y, 0);
-    al_draw_text(context_font, context_color, map_4_pos_x, map_4_pos_y - map_name_difference_from_image, 0, "Map 4");
+    al_draw_text(context_font, context_text_color, map_4_pos_x, map_4_pos_y - map_name_difference_from_image, 0, "Map 4");
     if(map_4_selected)
     {
         al_draw_rectangle(map_4_pos_x, map_4_pos_y, map_4_pos_x + map_width, map_4_pos_y + map_height, map_selected_color, map_display_frame_thinkness);
@@ -148,11 +165,15 @@ SelectScene::LabelSelected(double pos_x, double pos_y)
     if(pos_x >= start_label_x && pos_x <= start_label_x + start_label_width && pos_y >= start_label_y && pos_y <= start_label_y + start_label_height)
     {
         map_selected_reset();
+        al_set_sample_instance_gain(enter_sound, effect_sound_volume);
+        al_play_sample_instance(enter_sound);
         return GAME_BEGIN;
     }
     else if(pos_x >= back_label_x && pos_x <= back_label_x + back_label_width && pos_y >= back_label_y && pos_y <= back_label_y + back_label_height)
     {
         map_selected_reset();
+        al_set_sample_instance_gain(enter_sound, effect_sound_volume);
+        al_play_sample_instance(enter_sound);
         return GAME_BACK;
     }
     else
@@ -166,6 +187,11 @@ SelectScene::LabelMouseHover(double pos_x, double pos_y)
 {
     if(pos_x >= start_label_x && pos_x <= start_label_x + start_label_width && pos_y >= start_label_y && pos_y <= start_label_y + start_label_height)
     {
+        if(!start_label_mouse_hover)
+        {
+            al_set_sample_instance_gain(switch_sound, effect_sound_volume);
+            al_play_sample_instance(switch_sound);
+        }
         start_label_mouse_hover = true;
     }
     else
@@ -174,6 +200,11 @@ SelectScene::LabelMouseHover(double pos_x, double pos_y)
     }
     if(pos_x >= back_label_x && pos_x <= back_label_x + back_label_width && pos_y >= back_label_y && pos_y <= back_label_y + back_label_height)
     {
+        if(!back_label_mouse_hover)
+        {
+            al_set_sample_instance_gain(switch_sound, effect_sound_volume);
+            al_play_sample_instance(switch_sound);
+        }
         back_label_mouse_hover = true;
     }
     else
@@ -199,6 +230,12 @@ SelectScene::map_selected(double pos_x, double pos_y)
     if(pos_x >= map_1_pos_x && pos_x <= map_1_pos_x + map_width && pos_y >= map_1_pos_y && pos_y <= map_1_pos_y + map_height)
     {
         map_selected_reset();
+        if(al_get_sample_instance_playing(decision_sound))
+        {
+            al_stop_sample_instance(decision_sound);
+        }
+        al_set_sample_instance_gain(decision_sound, effect_sound_volume);
+        al_play_sample_instance(decision_sound);
         map_1_selected = true;
         game_map = 1;
         cout << "Map 1 selected.\n";
@@ -206,6 +243,12 @@ SelectScene::map_selected(double pos_x, double pos_y)
     else if(pos_x >= map_2_pos_x && pos_x <= map_2_pos_x + map_width && pos_y >= map_2_pos_y && pos_y <= map_2_pos_y + map_height)
     {
         map_selected_reset();
+        if(al_get_sample_instance_playing(decision_sound))
+        {
+            al_stop_sample_instance(decision_sound);
+        }
+        al_set_sample_instance_gain(decision_sound, effect_sound_volume);
+        al_play_sample_instance(decision_sound);
         map_2_selected = true;
         game_map = 2;
         cout << "Map 2 selected.\n";
@@ -213,6 +256,12 @@ SelectScene::map_selected(double pos_x, double pos_y)
     else if(pos_x >= map_3_pos_x && pos_x <= map_3_pos_x + map_width && pos_y >= map_3_pos_y && pos_y <= map_3_pos_y + map_height)
     {
         map_selected_reset();
+        if(al_get_sample_instance_playing(decision_sound))
+        {
+            al_stop_sample_instance(decision_sound);
+        }
+        al_set_sample_instance_gain(decision_sound, effect_sound_volume);
+        al_play_sample_instance(decision_sound);
         map_3_selected = true;
         game_map = 3;
         cout << "Map 3 selected.\n";
@@ -220,6 +269,12 @@ SelectScene::map_selected(double pos_x, double pos_y)
     else if(pos_x >= map_4_pos_x && pos_x <= map_4_pos_x + map_width && pos_y >= map_4_pos_y && pos_y <= map_4_pos_y + map_height)
     {
         map_selected_reset();
+        if(al_get_sample_instance_playing(decision_sound))
+        {
+            al_stop_sample_instance(decision_sound);
+        }
+        al_set_sample_instance_gain(decision_sound, effect_sound_volume);
+        al_play_sample_instance(decision_sound);
         map_4_selected = true;
         game_map = 4;
         cout << "Map 4 selected.\n";

@@ -8,13 +8,13 @@
 #define title_down 100
 #define label_difference 10
 
-#define title_font_size 35
-#define label_font_size 25
-#define context_font_size 12
+#define title_font_size 40
+#define label_font_size 30
+#define context_font_size 20
 
-#define map_name_difference_from_image 20
+#define map_name_difference_from_image 25
 #define map_difference_from_window_side 200
-#define map_display_frame_thinkness 2
+#define map_display_frame_thinkness 3
 
 class SelectScene : public Window
 {
@@ -33,6 +33,8 @@ public:
 
 private:
     vector<ALLEGRO_BITMAP*> map_set;
+
+    ALLEGRO_SAMPLE_INSTANCE* decision_sound;
 
     ALLEGRO_COLOR map_selected_color;
     ALLEGRO_COLOR map_unselected_color;

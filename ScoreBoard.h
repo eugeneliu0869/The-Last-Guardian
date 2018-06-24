@@ -22,8 +22,11 @@ public:
     int Get_Player_1_HolyWater() { return player_1_holy_water; }
     int Get_Player_2_HolyWater() { return player_2_holy_water; }
 
-    void Change_Player_1_Score(int);
-    void Change_Player_2_Score(int);
+    void Set_Player_1_Score(int value) { player_1_score = value; }
+    void Set_Player_2_Score(int value) { player_2_score = value; }
+
+    int Get_Player_1_Score() { return player_1_score; }
+    int Get_Player_2_Score() { return player_2_score; }
 
     void Reset();
 

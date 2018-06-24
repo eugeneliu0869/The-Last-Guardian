@@ -66,10 +66,10 @@ GameWindow::GameWindow()
     al_install_keyboard(); // install keyboard event
     al_install_mouse();    // install mouse event
 
-    Small_font = al_load_ttf_font("Caviar_Dreams_Bold.ttf",12,0);  // load small font
-    Medium_font = al_load_ttf_font("Caviar_Dreams_Bold.ttf",24,0); // load medium font
-    Large_font = al_load_ttf_font("Caviar_Dreams_Bold.ttf",36,0);  // load large font
-    Giant_font = al_load_ttf_font("Caviar_Dreams_Bold.ttf",50,0);  // load giant font
+    Small_font = al_load_ttf_font("merienda_regular.ttf",12,0);  // load small font
+    Medium_font = al_load_ttf_font("merienda_regular.ttf",24,0); // load medium font
+    Large_font = al_load_ttf_font("merienda_regular.ttf",36,0);  // load large font
+    Giant_font = al_load_ttf_font("merienda_regular.ttf",50,0);  // load giant font
 
     if(Small_font == NULL || Medium_font == NULL || Large_font == NULL)
     {
@@ -155,7 +155,14 @@ GameWindow::create_minion(int selected_minion, int team, int pos_x, int pos_y)
             break;
     }
 
-    return m;
+    if(m != NULL)
+    {
+        return m;
+    }
+    else
+    {
+        cout << "Minion creation failed!" << endl;
+    }
 }
 
 // set game sounds' volume
@@ -214,7 +221,7 @@ GameWindow::game_init()
     setting_scene = new SettingScene();
     select_scene = new SelectScene();
     pause_scene = new PauseScene();
-    result_scene = new ResultScene();
+    result_scene = new ResultScene(score_board);
     exit_scene = new ExitScene();
 
     icon = al_load_bitmap("./image/Icon.png");
@@ -227,29 +234,24 @@ GameWindow::game_init()
     }
 
     al_set_display_icon(display, icon);
-    al_reserve_samples(4);
+    al_reserve_samples(3);
 
     sample = al_load_sample("./sound/RunScene/StartSound.ogg");
     start_sound = al_create_sample_instance(sample);
-    al_set_sample_instance_playmode(start_sound, ALLEGRO_PLAYMODE_ONCE);
+    al_set_sample_instance_playmode(start_sound, ALLEGRO_PLAYMODE_LOOP);
     al_attach_sample_instance_to_mixer(start_sound, al_get_default_mixer());
 
     sample = al_load_sample("./sound/RunScene/BackgroundSound.ogg");
     background_sound = al_create_sample_instance(sample);
-    al_set_sample_instance_playmode(background_sound, ALLEGRO_PLAYMODE_ONCE);
+    al_set_sample_instance_playmode(background_sound, ALLEGRO_PLAYMODE_LOOP);
     al_attach_sample_instance_to_mixer(background_sound, al_get_default_mixer());
-
-    sample = al_load_sample("./sound/RunScene/EffectSound.ogg");
-    effect_sound = al_create_sample_instance(sample);
-    al_set_sample_instance_playmode(effect_sound, ALLEGRO_PLAYMODE_ONCE);
-    al_attach_sample_instance_to_mixer(effect_sound, al_get_default_mixer());
 
     sample = al_load_sample("./sound/RunScene/ResultSound.ogg");
     result_sound = al_create_sample_instance(sample);
     al_set_sample_instance_playmode(result_sound, ALLEGRO_PLAYMODE_ONCE);
     al_attach_sample_instance_to_mixer(result_sound, al_get_default_mixer());
 
-    if(start_sound == NULL || background == NULL || effect_sound == NULL || result_sound == NULL)
+    if(start_sound == NULL || background == NULL || result_sound == NULL)
     {
         show_error_message("Game run scene sounds loading fail.");
     }
@@ -321,6 +323,8 @@ GameWindow::game_init()
     player_2_arena_field_control_pos_x = window_width - menu_width - player_arena_field_control_grid_width;
     player_2_arena_field_control_pos_y = scoreboard_height;
     // end of player 2 initialization
+
+    al_play_sample_instance(start_sound);
 }
 
 void
@@ -330,6 +334,7 @@ GameWindow::game_begin()
 
     draw_running_animation();
 
+    al_stop_sample_instance(start_sound);
     al_play_sample_instance(background_sound);
 
     al_start_timer(timer);
@@ -344,7 +349,6 @@ GameWindow::game_play()
     {
         al_set_sample_instance_gain(start_sound, background_sound_volume);
         al_set_sample_instance_gain(background_sound, background_sound_volume);
-        al_set_sample_instance_gain(effect_sound, effect_sound_volume);
         al_set_sample_instance_gain(result_sound, background_sound_volume);
 
         switch(msg)
@@ -395,6 +399,32 @@ GameWindow::game_reset()
     // select scene reset
     select_scene->Reset();
 
+    // for the debug usage
+    player_1_minion_selected_source[0] = SABER;
+    player_1_minion_selected_source[1] = SABER1;
+    player_1_minion_selected_source[2] = SABER2;
+    player_1_minion_selected_source[3] = SABER3;
+    player_1_minion_selected_source[4] = SABER4;
+    player_1_minion_selected_source[5] = SABER5;
+    player_1_minion_selected_source[6] = SABER6;
+    player_1_minion_selected_source[7] = SABER7;
+    player_1_minion_selected_source[8] = SABER8;
+    player_1_minion_selected_source[9] = SABER9;
+    player_1_menu->Initial(player_1_minion_selected_source);
+
+    player_2_minion_selected_source[0] = SABER;
+    player_2_minion_selected_source[1] = SABER1;
+    player_2_minion_selected_source[2] = SABER2;
+    player_2_minion_selected_source[3] = SABER3;
+    player_2_minion_selected_source[4] = SABER4;
+    player_2_minion_selected_source[5] = SABER5;
+    player_2_minion_selected_source[6] = SABER6;
+    player_2_minion_selected_source[7] = SABER7;
+    player_2_minion_selected_source[8] = SABER8;
+    player_2_minion_selected_source[9] = SABER9;
+    player_2_menu->Initial(player_2_minion_selected_source);
+    // end of for the debug usage
+
     // players' interface variables reset
     holy_water_gain_speed = 60;
     player_1_holy_water_counter = 0;
@@ -436,10 +466,19 @@ GameWindow::game_reset()
     player_1_menu->Reset();
     player_2_menu->Reset();
 
+    // player 1 initialization
+    player_1_arena_field_control_pos_x = menu_width;
+    player_1_arena_field_control_pos_y = scoreboard_height;
+    // end of player 1 initialization
+
+    // player 2 initialization
+    player_2_arena_field_control_pos_x = window_width - menu_width - player_arena_field_control_grid_width;
+    player_2_arena_field_control_pos_y = scoreboard_height;
+    // end of player 2 initialization
+
     // stop sample instance
     al_stop_sample_instance(start_sound);
     al_stop_sample_instance(background_sound);
-    al_stop_sample_instance(effect_sound);
     al_stop_sample_instance(result_sound);
 
     // stop timer
@@ -469,7 +508,6 @@ GameWindow::game_destroy()
     al_destroy_sample(sample);
     al_destroy_sample_instance(start_sound);
     al_destroy_sample_instance(background_sound);
-    al_destroy_sample_instance(effect_sound);
     al_destroy_sample_instance(result_sound);
 
     delete score_board;
@@ -495,18 +533,32 @@ GameWindow::draw_running_animation()
     al_draw_bitmap(bridge, window_width/2 - BRIDGE_WIDTH/2, scoreboard_height + UPPER_BRIDGE_Y - BRIDGE_HEIGHT/2, 0); // draw upper bridge
     al_draw_bitmap(bridge, window_width/2 - BRIDGE_WIDTH/2, scoreboard_height + LOWER_BRIDGE_Y - BRIDGE_HEIGHT/2, 0); // draw lower bridge
 
+    // draw towers
+    for(auto i : Red_Team_Tower_Set)
+    {
+        i->Draw();
+    }
+    for(auto i : Blue_Team_Tower_Set)
+    {
+        i->Draw();
+    }
+
+    // draw minions
+    for(auto i : Red_Team_Minion_Set)
+    {
+        i->Draw();
+    }
+    for(auto i : Blue_Team_Minion_Set)
+    {
+        i->Draw();
+    }
+
     // draw score board
     score_board->Draw();
-
-    //cout << "scoreboard->p1: " << score_board->Get_Player_1_HolyWater() << endl;
-    //cout << "scoreboard->p2: " << score_board->Get_Player_2_HolyWater() << endl;
 
     // draw players' menu
     player_1_menu->Draw();
     player_2_menu->Draw();
-
-    //cout << "menu->p1: " << player_1_menu->getHolyWater() << endl;
-    //cout << "menu->p2: " << player_2_menu->getHolyWater() << endl;
 
     // draw players' arena control display
     al_draw_text(Small_font, player_1_color, player_1_arena_field_control_pos_x, player_1_arena_field_control_pos_y - 15, 0, "p1");
@@ -523,26 +575,6 @@ GameWindow::draw_running_animation()
                       player_2_arena_field_control_pos_y + player_arena_field_control_grid_height,
                       player_2_color, player_arena_field_control_display_thickness);
 
-    // draw minions
-    for(auto i : Red_Team_Minion_Set)
-    {
-        i->Draw();
-    }
-    for(auto i : Blue_Team_Minion_Set)
-    {
-        i->Draw();
-    }
-
-    // draw towers
-    for(auto i : Red_Team_Tower_Set)
-    {
-        i->Draw();
-    }
-    for(auto i : Blue_Team_Tower_Set)
-    {
-        i->Draw();
-    }
-
     al_flip_display();
 }
 // end of draw running animation
@@ -556,14 +588,20 @@ GameWindow::game_update()
     for(mit = Red_Team_Minion_Set.begin(); mit != Red_Team_Minion_Set.end(); mit++)
     {
         (*mit)->findClosestTower(1000, 300); // for the debug usage
+        cout << "Red team -> findClosestTower calling success.\n";
         (*mit)->find_way();
+        cout << "Red team -> find_way calling success.\n";
         (*mit)->Move();
+        cout << "Red team -> Move calling success.\n";
     }
     for(mit = Blue_Team_Minion_Set.begin(); mit != Blue_Team_Minion_Set.end(); mit++)
     {
         (*mit)->findClosestTower(300, 300); // for the debug usage
+        cout << "Blue team -> findClosestTower calling success.\n";
         (*mit)->find_way();
+        cout << "Blue team -> find_way calling success.\n";
         (*mit)->Move();
+        cout << "Blue team -> Move calling success.\n";
     }
 
     // checking all the tower's working status
@@ -670,6 +708,22 @@ GameWindow::game_update()
     }
     // end of for blue team towers -> red_team_minions
     // end of checking all the tower's working status
+
+    // score update
+    score_board->Set_Player_1_Score(3 - Blue_Team_Tower_Set.size()); // red team scores = 3 - the number of existed blue team towers
+    score_board->Set_Player_2_Score(3 - Red_Team_Tower_Set.size());  // blue team scores = 3 - the number of existed red team towers
+
+    // check whether the game will end
+    if(Red_Team_Tower_Set.size() == 0 || Blue_Team_Tower_Set.size() == 0)
+    {
+        al_play_sample_instance(result_sound);
+        //while(al_get_sample_instance_playing(result_sound)) { }
+        game_reset();
+
+        return GAME_RESULT;
+    }
+
+    return GAME_CONTINUE;
 }
 // end of game update
 
@@ -768,6 +822,11 @@ GameWindow::game_result_scene()
 {
     int msg = GAME_RESULT;
 
+    if(!result_scene->get_initial())
+    {
+        result_scene->SceneInit();
+        result_scene->toggle_initial();
+    }
     result_scene->Draw();
 
     if(!al_is_event_queue_empty(event_queue))
@@ -942,6 +1001,8 @@ GameWindow::process_event_select_scene()
 int
 GameWindow::process_event_run_scene()
 {
+    int msg = GAME_CONTINUE;
+
     al_wait_for_event(event_queue, &event);
 
     redraw = false;
@@ -1037,8 +1098,8 @@ GameWindow::process_event_run_scene()
             else
             {
                 m = create_minion(new_minion, red_team,
-                              player_1_arena_field_control_pos_x + player_arena_field_control_grid_width/2,
-                              player_1_arena_field_control_pos_y + player_arena_field_control_grid_height/2);
+                                  player_1_arena_field_control_pos_x + player_arena_field_control_grid_width/2,
+                                  player_1_arena_field_control_pos_y + player_arena_field_control_grid_height/2);
                 Red_Team_Minion_Set.push_back(m);
 
                 cout << "Player 1 consumes " << m->getCost()
@@ -1058,8 +1119,8 @@ GameWindow::process_event_run_scene()
             else
             {
                 m = create_minion(new_minion, red_team,
-                              player_1_arena_field_control_pos_x + player_arena_field_control_grid_width/2,
-                              player_1_arena_field_control_pos_y + player_arena_field_control_grid_height/2);
+                                  player_1_arena_field_control_pos_x + player_arena_field_control_grid_width/2,
+                                  player_1_arena_field_control_pos_y + player_arena_field_control_grid_height/2);
                 Red_Team_Minion_Set.push_back(m);
 
                 cout << "Player 1 consumes " << m->getCost()
@@ -1079,8 +1140,8 @@ GameWindow::process_event_run_scene()
             else
             {
                 m = create_minion(new_minion, red_team,
-                              player_1_arena_field_control_pos_x + player_arena_field_control_grid_width/2,
-                              player_1_arena_field_control_pos_y + player_arena_field_control_grid_height/2);
+                                  player_1_arena_field_control_pos_x + player_arena_field_control_grid_width/2,
+                                  player_1_arena_field_control_pos_y + player_arena_field_control_grid_height/2);
                 Red_Team_Minion_Set.push_back(m);
 
                 cout << "Player 1 consumes " << m->getCost()
@@ -1100,8 +1161,8 @@ GameWindow::process_event_run_scene()
             else
             {
                 m = create_minion(new_minion, red_team,
-                              player_1_arena_field_control_pos_x + player_arena_field_control_grid_width/2,
-                              player_1_arena_field_control_pos_y + player_arena_field_control_grid_height/2);
+                                  player_1_arena_field_control_pos_x + player_arena_field_control_grid_width/2,
+                                  player_1_arena_field_control_pos_y + player_arena_field_control_grid_height/2);
                 Red_Team_Minion_Set.push_back(m);
 
                 cout << "Player 1 consumes " << m->getCost()
@@ -1155,8 +1216,8 @@ GameWindow::process_event_run_scene()
             else
             {
                 m = create_minion(new_minion, blue_team,
-                              player_2_arena_field_control_pos_x + player_arena_field_control_grid_width/2,
-                              player_2_arena_field_control_pos_y + player_arena_field_control_grid_height/2);
+                                  player_2_arena_field_control_pos_x + player_arena_field_control_grid_width/2,
+                                  player_2_arena_field_control_pos_y + player_arena_field_control_grid_height/2);
                 Blue_Team_Minion_Set.push_back(m);
 
                 cout << "Player 2 consumes " << m->getCost()
@@ -1176,8 +1237,8 @@ GameWindow::process_event_run_scene()
             else
             {
                 m = create_minion(new_minion, blue_team,
-                              player_2_arena_field_control_pos_x + player_arena_field_control_grid_width/2,
-                              player_2_arena_field_control_pos_y + player_arena_field_control_grid_height/2);
+                                  player_2_arena_field_control_pos_x + player_arena_field_control_grid_width/2,
+                                  player_2_arena_field_control_pos_y + player_arena_field_control_grid_height/2);
                 Blue_Team_Minion_Set.push_back(m);
 
                 cout << "Player 2 consumes " << m->getCost()
@@ -1197,8 +1258,8 @@ GameWindow::process_event_run_scene()
             else
             {
                 m = create_minion(new_minion, blue_team,
-                              player_2_arena_field_control_pos_x + player_arena_field_control_grid_width/2,
-                              player_2_arena_field_control_pos_y + player_arena_field_control_grid_height/2);
+                                  player_2_arena_field_control_pos_x + player_arena_field_control_grid_width/2,
+                                  player_2_arena_field_control_pos_y + player_arena_field_control_grid_height/2);
                 Blue_Team_Minion_Set.push_back(m);
 
                 cout << "Player 2 consumes " << m->getCost()
@@ -1218,8 +1279,8 @@ GameWindow::process_event_run_scene()
             else
             {
                 m = create_minion(new_minion, blue_team,
-                              player_2_arena_field_control_pos_x + player_arena_field_control_grid_width/2,
-                              player_2_arena_field_control_pos_y + player_arena_field_control_grid_height/2);
+                                  player_2_arena_field_control_pos_x + player_arena_field_control_grid_width/2,
+                                  player_2_arena_field_control_pos_y + player_arena_field_control_grid_height/2);
                 Blue_Team_Minion_Set.push_back(m);
 
                 cout << "Player 2 consumes " << m->getCost()
@@ -1237,12 +1298,12 @@ GameWindow::process_event_run_scene()
 
     if(redraw)
     {
-        game_update();
+        msg = game_update();
         draw_running_animation();
         redraw = false;
     }
 
-    return GAME_CONTINUE;
+    return msg;
 }
 
 int
@@ -1340,6 +1401,11 @@ GameWindow::process_event_result_scene()
     {
         if(event.mouse.button == 1)
         {
+            if(result_scene->LabelSelected(mouse_x, mouse_y) == GAME_INIT)
+            {
+                al_play_sample_instance(start_sound);
+            }
+
             return result_scene->LabelSelected(mouse_x, mouse_y);
         }
     }

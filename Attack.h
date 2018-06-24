@@ -3,31 +3,24 @@
 
 #include "global.h"
 #include "Circle.h"
+#include "Object.h"
 
-class Attack
+class Attack : public Object
 {
 public:
-    Attack(Circle*, Circle*, int, int, ALLEGRO_BITMAP*);
-    ~Attack();
+    Attack() { }
+    ~Attack() { }
 
-    void Draw();
-
-    Circle* getCircle() { return circle; }
-    double getCircleX() { return circle->x; }
-    double getCircleY() { return circle->y; }
-    double getCircleR() { return circle->r; }
+    virtual void Draw() = 0;
     int getHarmPoint() { return harm_point; }
 
 protected:
-    ALLEGRO_BITMAP* attack_image;
+    ALLEGRO_BITMAP* attack_img;
     ALLEGRO_SAMPLE* sample;
-    ALLEGRO_SAMPLE_INSTANCE* attack_sound;
+    ALLEGRO_SAMPLE_INSTANCE* hit = NULL;
 
-private:
-    Circle* circle;
-
-    int harm_point = 5;
-    int attack_velocity = 10;
+    int attack_velocity = 0;
+    int harm_point = 0;
     double pos_x, pos_y;
     double direction_x, direction_y;
 };

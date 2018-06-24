@@ -1,15 +1,22 @@
 #include "Tower.h"
+#include "Minion.h"
 
 Tower::Tower(int pos_x = 0, int pos_y = 0)
 {
-    circle = new Circle(pos_x, pos_y, attack_range);
+    attack_circle = new Circle(pos_x, pos_y, attack_range);
+    detect_circle = new Circle(pos_x, pos_y, detect_range);
+    self_circle = new Circle(pos_x, pos_y, self_range);
     strcpy(name, "Default");
 }
 
 Tower::~Tower()
 {
+    for(auto i : image_set)
+    {
+        al_destroy_bitmap(i);
+    }
+    image_set.clear();
     al_destroy_bitmap(attack_image);
-    al_destroy_bitmap(image);
 
     for(auto i : attack_set)
     {
@@ -17,19 +24,27 @@ Tower::~Tower()
     }
     attack_set.clear();
 
-    delete circle;
+    delete attack_circle;
+    delete detect_circle;
+    delete self_circle;
 }
 
 void
 Tower::Draw()
 {
-    int draw_x = circle->x - width/2;
-    int draw_y = circle->y - height + width/2;
+    double draw_x = self_circle->x - width/2;
+    double draw_y = self_circle->y - height + width;
 
-    al_draw_filled_circle(circle->x, circle->y, circle->r, al_map_rgba(100, 100, 100, 100));
-    al_draw_bitmap(image, draw_x, draw_y, 0);
+    al_draw_filled_circle(self_circle->x, self_circle->y, self_circle->r, al_map_rgba(100, 100, 100, 100));
+    al_draw_bitmap(image_set[cur_sprite], draw_x, draw_y, 0);
 
     attack_counter = (attack_counter + 1 ) % attack_frequency;
+
+    animation_counter = (animation_counter + 1) % animation_frequency;
+    if(animation_counter == 0)
+    {
+        cur_sprite = (cur_sprite + 1) % sprite_num;
+    }
 
     for(auto i : attack_set)
     {
@@ -41,17 +56,17 @@ bool
 Tower::DetectAttack(Minion* minion)
 {
     bool willAttack = false;
-    Attack* attack;
+    TowerAttack* attack;
 
-    if(Circle::isOverlap(circle, minion->getAttackCircle() /*minion->getSelfCircle()*/ ))
+    if(Circle::isOverlap(detect_circle, minion->getSelfCircle()))
     {
         if(attack_counter == 0)
         {
-            attack = new Attack(circle,
-                                minion->getAttackCircle() /*getSelfCircle()*/,
-                                attack_harm_point,
-                                attack_velocity,
-                                attack_image);
+            attack = new TowerAttack(detect_circle,
+                                     minion->getSelfCircle(),
+                                     attack_harm_point,
+                                     attack_velocity,
+                                     attack_image);
 
             attack_set.push_back(attack);
             willAttack = true;
@@ -68,14 +83,14 @@ Tower::TriggerAttack(Minion* minion)
 
     for(int i = 0; i<attack_set.size(); i++)
     {
-        if(Circle::isOverlap(attack_set[i]->getCircle(), minion->getAttackCircle() /*minion->getSelfCircle()*/ ))
+        if(Circle::isOverlap(attack_set[i]->getCircle(), minion->getSelfCircle()))
         {
             if(minion->Substract_HP(attack_set[i]->getHarmPoint()))
             {
                 isDestroyed = true;
             }
 
-            Attack *attack = attack_set[i];
+            TowerAttack* attack = attack_set[i];
 
             attack_set.erase(attack_set.begin() + i);
             i--;
@@ -91,13 +106,20 @@ Tower::UpdateAttack()
 {
     for(int i = 0; i<attack_set.size(); i++)
     {
-        if(!Circle::isOverlap(attack_set[i]->getCircle(), circle))
+        if(!Circle::isOverlap(attack_set[i]->getCircle(), attack_circle))
         {
-            Attack *attack = attack_set[i];
+            TowerAttack* attack = attack_set[i];
 
             attack_set.erase(attack_set.begin() + i);
             i--;
             delete attack;
         }
     }
+}
+
+bool Tower::Substract_HP(int harm)
+{
+    HP -= harm;
+
+    return (HP <= 0);
 }

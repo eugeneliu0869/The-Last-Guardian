@@ -21,11 +21,18 @@ public:
     int getDetectY() { return detect_circle->y; }
     int getDetectRadius() { return detect_circle->r; }
 
+    int getSelfX() { return self_circle->x; }
+    int getSelfY() { return self_circle->y; }
+    int getSelfRadius() { return self_circle->r; }
+
     Circle* getAttackCircle() const { return attack_circle; }
     Circle* getDetectCircle() const { return detect_circle; }
+    Circle* getSelfCircle() const { return self_circle; }
+
 protected:
     Circle* attack_circle;
     Circle* detect_circle;
+    Circle* self_circle;
 };
 
 #endif // OBJECT_H_INCLUDED

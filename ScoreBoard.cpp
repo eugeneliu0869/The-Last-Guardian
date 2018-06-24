@@ -4,10 +4,10 @@ ScoreBoard::ScoreBoard()
 {
     background = al_load_bitmap("./image/ScoreBoard/Background.png");
 
-    Small_font = al_load_ttf_font("Caviar_Dreams_Bold.ttf",12,0);
-    Medium_font = al_load_ttf_font("Caviar_Dreams_Bold.ttf",24,0);
-    Large_font = al_load_ttf_font("Caviar_Dreams_Bold.ttf",36,0);
-    Giant_font = al_load_ttf_font("Caviar_Dreams_Bold.ttf",50,0);
+    Small_font = al_load_ttf_font("merienda_regular.ttf",12,0);
+    Medium_font = al_load_ttf_font("merienda_regular.ttf",24,0);
+    Large_font = al_load_ttf_font("merienda_regular.ttf",36,0);
+    Giant_font = al_load_ttf_font("merienda_regular.ttf",50,0);
 
     player_1_holy_water = 0;
     player_2_holy_water = 0;
@@ -62,18 +62,6 @@ ScoreBoard::Draw()
     al_draw_text(Giant_font, score_color, window_width/2 - 100, scoreboard_height/2 - 25, ALLEGRO_ALIGN_CENTER, player_1_score_display);
     al_draw_text(Giant_font, score_color, window_width/2, scoreboard_height/2 - 25, ALLEGRO_ALIGN_CENTER, ":");
     al_draw_text(Giant_font, score_color, window_width/2 + 100, scoreboard_height/2 - 25, ALLEGRO_ALIGN_CENTER, player_2_score_display);
-}
-
-void
-ScoreBoard::Change_Player_1_Score(int change)
-{
-
-}
-
-void
-ScoreBoard::Change_Player_2_Score(int change)
-{
-
 }
 
 void

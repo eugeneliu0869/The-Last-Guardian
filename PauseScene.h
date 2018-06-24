@@ -6,9 +6,9 @@
 #define title_top 50
 #define label_difference 10
 
-#define title_font_size 35
-#define label_font_size 25
-#define context_font_size 20
+#define title_font_size 40
+#define label_font_size 30
+#define context_font_size 25
 
 class PauseScene : public Window
 {
@@ -23,7 +23,7 @@ public:
 
 private:
     int title_x, title_y;
-    int title_width = 200, title_height = 40;
+    int title_width = 450, title_height = 40;
 
     bool continue_label_mouse_hover = false;
     int continue_label_x, continue_label_y;

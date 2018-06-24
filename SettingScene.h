@@ -8,9 +8,9 @@
 #define title_top 50
 #define label_difference 10
 
-#define title_font_size 35
-#define label_font_size 25
-#define context_font_size 20
+#define title_font_size 40
+#define label_font_size 30
+#define context_font_size 25
 
 class SettingScene : public Window
 {

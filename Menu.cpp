@@ -9,7 +9,7 @@ Menu::Menu(int _team, ScoreBoard* _score_board)
 
     background = al_load_bitmap("./image/Menu/Background.png"); // load background
 
-    hotkey_font = al_load_ttf_font("Caviar_Dreams_Bold.ttf", hotkey_font_size, 0); // load hotkey font
+    hotkey_font = al_load_ttf_font("merienda_regular.ttf", hotkey_font_size, 0); // load hotkey font
 
     // UI variables initialization
     if(team == red_team)

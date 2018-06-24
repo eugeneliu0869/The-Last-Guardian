@@ -2,15 +2,13 @@
 #define GAMEWINDOW_H_INCLUDED
 
 #include "global.h"
-#include "Map.h"
 #include "Menu.h"
 #include "Minion.h"
 #include "Saber.h"
-#include "RangeAttack.h"
 #include "Tower.h"
 #include "MajorTower.h"
 #include "MinorTower.h"
-#include "Attack.h"
+#include "TowerAttack.h"
 #include "Slider.h"
 #include "StartScene.h"
 #include "SettingScene.h"
@@ -125,7 +123,6 @@ private:
     ALLEGRO_SAMPLE* sample = NULL;
     ALLEGRO_SAMPLE_INSTANCE* start_sound = NULL; // classified as background sound
     ALLEGRO_SAMPLE_INSTANCE* background_sound = NULL; // classified as background sound
-    ALLEGRO_SAMPLE_INSTANCE* effect_sound = NULL; // classified as effect sound
     ALLEGRO_SAMPLE_INSTANCE* result_sound = NULL; // classified as background sound
 
     // players' interface variables

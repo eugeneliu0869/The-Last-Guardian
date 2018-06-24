@@ -24,6 +24,10 @@ protected:
     ALLEGRO_FONT* label_font;
     ALLEGRO_FONT* context_font;
 
+    ALLEGRO_SAMPLE* sample;
+    ALLEGRO_SAMPLE_INSTANCE* switch_sound;
+    ALLEGRO_SAMPLE_INSTANCE* enter_sound;
+
     ALLEGRO_COLOR title_color;
     ALLEGRO_COLOR title_text_color;
     ALLEGRO_COLOR label_color;
