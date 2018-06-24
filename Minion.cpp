@@ -319,7 +319,7 @@ Minion::DetectMinion(Minion* minion)
     return willAttack;
 }
 
-void
+bool
 Minion::TriggerAttackMinion(Minion* minion)
 {
     bool isDestroyed = false;
