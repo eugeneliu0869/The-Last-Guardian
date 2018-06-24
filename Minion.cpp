@@ -17,8 +17,8 @@ Minion::Minion(int posx = 0, int posy = 0, int team = red_team)
     else if (this->team = blue_team)
         cur_direction = LEFT;
 
-    attack_circle = new Circle(posx, posy, 0);
-    detect_circle = new Circle(posx, posy, 0);
+    attack_circle = new Circle(posx, posy, 30);
+    detect_circle = new Circle(posx, posy, 50);
     // attack_circle and detect_circle should be overrode
 
     // dir_sprite should be overrode
@@ -149,7 +149,6 @@ Minion::find_way() // to find the values of unit_heading_x and unit_heading_y
             cout << "Error occurs !!" << endl;
     }
 
-
     if (unit_heading_x > 0)
         cur_direction = RIGHT;
     else if (unit_heading_x < 0)
@@ -166,7 +165,6 @@ Minion::find_way() // to find the values of unit_heading_x and unit_heading_y
             else
                 cur_direction = DOWN;
         }
-
     }
 }
 
@@ -175,6 +173,14 @@ Minion:: findClosestTower(int tower_x, int tower_y)
 {
     closest_tower_x = tower_x;
     closest_tower_y = tower_y;
+}
+
+bool
+Minion::Substract_HP(int harm)
+{
+    HealthPoint -= harm;
+
+    return (HealthPoint <= 0);
 }
 
 void
