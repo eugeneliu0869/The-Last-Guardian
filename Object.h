@@ -23,9 +23,11 @@ public:
 
     Circle* getAttackCircle() const { return attack_circle; }
     Circle* getDetectCircle() const { return detect_circle; }
+    Circle* getSelfCircle() const {return self_circle; }
 protected:
     Circle* attack_circle;
     Circle* detect_circle;
+    Circle* self_circle;
 };
 
 #endif // OBJECT_H_INCLUDED

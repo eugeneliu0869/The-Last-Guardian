@@ -26,7 +26,8 @@ ScoreBoard::~ScoreBoard()
     al_destroy_font(Giant_font);
 }
 
-void ScoreBoard::Draw()
+void
+ScoreBoard::Draw()
 {
     al_draw_bitmap(background, 0, 0, 0);
 
@@ -63,43 +64,20 @@ void ScoreBoard::Draw()
     al_draw_text(Giant_font, score_color, window_width/2 + 100, scoreboard_height/2 - 25, ALLEGRO_ALIGN_CENTER, player_2_score_display);
 }
 
-void ScoreBoard::Set_Player_1_HolyWater(int value)
-{
-    player_1_holy_water = value;
-}
-
-void ScoreBoard::Set_Player_2_HolyWater(int value)
-{
-    player_2_holy_water = value;
-}
-
-void ScoreBoard::Change_Player_1_HolyWater(int change)
-{
-    if(player_1_holy_water + change >= 0 && player_1_holy_water + change <= max_holy_water)
-    {
-        player_1_holy_water += change;
-    }
-}
-
-void ScoreBoard::Change_Player_2_HolyWater(int change)
-{
-    if(player_2_holy_water + change >= 0 && player_2_holy_water + change <= max_holy_water)
-    {
-        player_2_holy_water += change;
-    }
-}
-
-void ScoreBoard::Change_Player_1_Score(int change)
+void
+ScoreBoard::Change_Player_1_Score(int change)
 {
 
 }
 
-void ScoreBoard::Change_Player_2_Score(int change)
+void
+ScoreBoard::Change_Player_2_Score(int change)
 {
 
 }
 
-void ScoreBoard::Reset()
+void
+ScoreBoard::Reset()
 {
     player_1_holy_water = 0;
     player_2_holy_water = 0;

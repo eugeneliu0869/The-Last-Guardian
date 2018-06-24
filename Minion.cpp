@@ -2,7 +2,6 @@
 
 const int axis_x[] = {-1, 1, 0, 0};
 const int axis_y[] = {0, 0, -1, 1};
-// for reading pictures, i.e. name/direction_name_xx.png
 const char direction_name[][10] = {"LEFT", "RIGHT", "UP", "DOWN"};
 
 // set counter frequency of drawing moving animation
@@ -18,15 +17,17 @@ Minion::Minion(int posx = 0, int posy = 0, int team = red_team)
     else if (this->team = blue_team)
         cur_direction = LEFT;
 
-    attack_circle = new Circle(posx, posy, 0);
-    detect_circle = new Circle(posx, posy, 0);
-    // attack_circle and detect_circle should be overrode
+    attack_circle = new Circle(posx, posy, 30);
+    detect_circle = new Circle(posx, posy, 50);
+    self_circle = new Circle(posx, posy, 5);
+    // attack_circle and detect_circle and self_circle should be overrode
 
     // dir_sprite should be overrode
 
     // name should be overrode
     strncpy(name, "Default", 30);
 
+    is_attack = false;
     cur_sprite = 0;
     counter = 0;
 }
@@ -46,6 +47,7 @@ Minion::~Minion()
 
     delete attack_circle;
     delete detect_circle;
+    delete self_circle;
 }
 
 bool
@@ -90,18 +92,13 @@ Minion::Draw()
     w = al_get_bitmap_width(moveImg[offset + cur_sprite]);
     h = al_get_bitmap_height(moveImg[offset + cur_sprite]);
 
-    // draw bridge -> for debug usage
-    al_draw_filled_rectangle(window_width/2 - BRIDGE_WIDTH/2, scoreboard_height + UPPER_BRIDGE_Y - BRIDGE_HEIGHT/2,
-                             window_width/2 + BRIDGE_WIDTH/2, scoreboard_height + UPPER_BRIDGE_Y + BRIDGE_HEIGHT/2,
-                             al_map_rgb(255, 255, 255));
-    al_draw_filled_rectangle(window_width/2 - BRIDGE_WIDTH/2, scoreboard_height + LOWER_BRIDGE_Y - BRIDGE_HEIGHT/2,
-                             window_width/2 + BRIDGE_WIDTH/2, scoreboard_height + LOWER_BRIDGE_Y + BRIDGE_HEIGHT/2,
-                             al_map_rgb(255, 255, 255));
-
     // draw bitmap align grid edge
     al_draw_bitmap(moveImg[offset + cur_sprite], attack_circle->x - w/2, attack_circle->y - (h - grid_height/2), 0);
 
     //al_draw_filled_circle(circle->x, circle->y, circle->r, al_map_rgba(196, 79, 79, 200));
+
+    //cout << "(" << attack_circle->x << "," << attack_circle->y << ")" << endl;
+    //cout << "direction : " << cur_direction << endl;
 }
 
 void
@@ -154,34 +151,21 @@ Minion::find_way() // to find the values of unit_heading_x and unit_heading_y
             cout << "Error occurs !!" << endl;
     }
 
-    if (unit_heading_y == 0)
-    {
-        if (unit_heading_x > 0)
-            cur_direction = RIGHT;
-        else if (unit_heading_x < 0)
-            cur_direction = LEFT;
-    }
-    else
-    {
-        double rate = (double) unit_heading_x / unit_heading_y;
+    if (unit_heading_x > 0)
+        cur_direction = RIGHT;
+    else if (unit_heading_x < 0)
+        cur_direction = LEFT;
 
-        if (unit_heading_x >= 0)
+    if (unit_heading_y != 0)
+    {
+        double diff = (double) abs(unit_heading_x) - abs(unit_heading_y);
+
+        if (diff < 0)
         {
-            if (rate<=1 && rate>=-1)
-                cur_direction = RIGHT;
-            else if (rate > 1)
+            if (unit_heading_y > 0)
                 cur_direction = UP;
-            else if (rate < 1)
+            else
                 cur_direction = DOWN;
-        }
-        else
-        {
-            if (rate<=1 && rate>=-1)
-                cur_direction = LEFT;
-            else if (rate > 1)
-                cur_direction = DOWN;
-            else if (rate < 1)
-                cur_direction = UP;
         }
     }
 }
@@ -191,6 +175,14 @@ Minion:: findClosestTower(int tower_x, int tower_y)
 {
     closest_tower_x = tower_x;
     closest_tower_y = tower_y;
+}
+
+bool
+Minion::Substract_HP(int harm)
+{
+    HealthPoint -= harm;
+
+    return (HealthPoint <= 0);
 }
 
 void
@@ -226,27 +218,135 @@ Minion:: Move()
         path_stage = HEADING_TO_TOWER;
     }
 }
-
 void
 Minion::LoadAnimation()
 {
+    char buffer[50];
 
+    for (int i=0; i<4; i++)
+    {
+        for (int j=0; j<dir_sprite[i]; j++)
+        {
+            ALLEGRO_BITMAP *img;
+            sprintf(buffer, "./image/Minion/%s/%s_%d.png", name, direction_name[i], j+1);
+
+            img = al_load_bitmap(buffer);
+            if (img)
+                moveImg.push_back(img);
+            else
+                cout << "LoadAnimation failed!" << endl;
+        }
+    }
 }
 
-void
-Minion::LoadAttackAnimation()
+bool
+Minion::DetectAttack(Minion *minion)
 {
+    Attack *attack;
+    RangeAttack *rangeattack;
+    is_attack = false;
 
+    if(Circle::isOverlap(this->detect_circle, minion->getSelfCircle()))
+    {
+        this->detect_set.push_back(minion);
+    }
+    else if(Circle::isOverlap(this->attack_circle, minion->getSelfCircle()))
+    {
+        if(attack_counter == 0)
+        {
+            if(attack_type == MELEE)
+            {
+                attack = new Attack(
+                    this->attack_circle,
+                    minion->getSelfCircle(),
+                    this->attack_harm_point,
+                    this->attack_velocity,
+                    this->attackImg
+                );
+                this->attack_set.push_back(attack);
+            }
+            else if(attack_type == RANGER)
+            {
+                rangeattack = new RangeAttack(
+                    this->attack_circle,
+                    minion->getSelfCircle(),
+                    this->attack_harm_point,
+                    this->attack_velocity,
+                    this->attackImg
+                );
+                this->rangeattack_set.push_back(rangeattack);
+            }
+
+            is_attack = true;
+        }
+    }
+    return is_attack;
 }
 
-void
-Minion::TriggerAttack()
+bool
+Minion::TriggerAttack(Minion* minion)
 {
+    bool destroyed = false;
 
+    if(attack_type == MELEE)
+    {
+        for(unsigned int i = 0; i < this->attack_set.size(); i++)
+        {
+            if(Circle::isOverlap(attack_set[i]->getCircle(), minion->getSelfCircle()))
+            destroyed = minion->Substract_HP(attack_harm_point);
+
+            this->attack_set.erase(this->attack_set.begin() + i);
+            delete(this->attack_set[i]);
+            if(destroyed)
+                break;
+        }
+    }
+    else if(attack_type == RANGER)
+    {
+        for(unsigned int i = 0; i < this->rangeattack_set.size(); i++)
+        {
+            if(Circle::isOverlap(rangeattack_set[i]->getAttackCircle(), minion->getSelfCircle()))
+            destroyed = minion->Substract_HP(attack_harm_point);
+
+            this->rangeattack_set.erase(this->rangeattack_set.begin() + i);
+            delete(this->rangeattack_set[i]);
+            if(destroyed)
+                break;
+        }
+    }
+
+    return destroyed;
 }
 
 void
 Minion::UpdateAttack()
 {
+    if(attack_type == MELEE)
+    {
+        for(unsigned int i=0; i < this->attack_set.size(); i++)
+        {
+            if(!Circle::isOverlap(attack_set[i]->getSelfCircle(), this->attack_circle))
+            {
+                Attack *attack = this->attack_set[i];
 
+                this->attack_set.erase(this->attack_set.begin() + i);
+                i--;
+                delete attack;
+            }
+        }
+    }
+    else if(attack_type == RANGER)
+    {
+        for(unsigned int i=0; i < this->rangeattack_set.size(); i++)
+        {
+            if(!Circle::isOverlap(rangeattack_set[i]->getSelfCircle(), this->attack_circle))
+            {
+                Attack *attack = this->rangeattack_set[i];
+
+                this->attack_set.erase(this->rangeattack_set.begin() + i);
+                i--;
+                delete attack;
+            }
+        }
+    }
 }

@@ -1,97 +1,288 @@
 #include "Menu.h"
 
-Menu::Menu()
+Menu::Menu(int _team, ScoreBoard* _score_board)
 {
-    char filename[50];
+    score_board = _score_board;
 
-    HolyWater = 0;
+    team = _team;
+	holy_water = 0;
 
-    for(int i=0;i<minion_num; i++)
+    background = al_load_bitmap("./image/Menu/Background.png"); // load background
+
+    hotkey_font = al_load_ttf_font("Caviar_Dreams_Bold.ttf", hotkey_font_size, 0); // load hotkey font
+
+    // UI variables initialization
+    if(team == red_team)
     {
-        ALLEGRO_BITMAP *minion;
-        sprintf(filename, "./image/minion/%s_Menu.png", ArmyClass[i]);
+    	menu_context_color = player_1_color;
+    	card_frame_color = player_1_color;
 
-        minion = al_load_bitmap(filename);
-        menu_army.push_back(minion);
+		menu_pos_x = 0;
+		menu_pos_y = scoreboard_height;
+		minion_card_1_pos_x = menu_pos_x + minion_card_horizontal_difference;
+		minion_card_1_pos_y = menu_pos_y + minion_card_top_difference;
+		minion_card_2_pos_x = menu_pos_x + minion_card_horizontal_difference;
+		minion_card_2_pos_y = minion_card_1_pos_y + minion_card_height + minion_card_vertical_difference;
+		minion_card_3_pos_x = menu_pos_x + minion_card_horizontal_difference;
+		minion_card_3_pos_y = minion_card_2_pos_y + minion_card_height + minion_card_vertical_difference;
+		minion_card_4_pos_x = menu_pos_x + minion_card_horizontal_difference;
+		minion_card_4_pos_y = minion_card_3_pos_y + minion_card_height + minion_card_vertical_difference;
+
+		strcpy(hotkey_set[0], "B");
+		strcpy(hotkey_set[1], "N");
+		strcpy(hotkey_set[2], "M");
+		strcpy(hotkey_set[3], "G");
     }
+	else if(team == blue_team)
+	{
+		menu_context_color = player_2_color;
+		card_frame_color = player_2_color;
 
-    menuFont = al_load_ttf_font("pirulen.ttf", 12, 0); // load font
+		menu_pos_x = window_width - menu_width;
+		menu_pos_y = scoreboard_height;
+		minion_card_1_pos_x = menu_pos_x + minion_card_horizontal_difference;
+		minion_card_1_pos_y = menu_pos_y + minion_card_top_difference;
+		minion_card_2_pos_x = menu_pos_x + minion_card_horizontal_difference;
+		minion_card_2_pos_y = minion_card_1_pos_y + minion_card_height + minion_card_vertical_difference;
+		minion_card_3_pos_x = menu_pos_x + minion_card_horizontal_difference;
+		minion_card_3_pos_y = minion_card_2_pos_y + minion_card_height + minion_card_vertical_difference;
+		minion_card_4_pos_x = menu_pos_x + minion_card_horizontal_difference;
+		minion_card_4_pos_y = minion_card_3_pos_y + minion_card_height + minion_card_vertical_difference;
+
+		strcpy(hotkey_set[0], "1");
+		strcpy(hotkey_set[1], "2");
+		strcpy(hotkey_set[2], "3");
+		strcpy(hotkey_set[3], "4");
+	}
+
+	enough_holy_water_color = al_map_rgba(100, 100, 100, 100);
 }
 
 Menu::~Menu()
 {
-    al_destroy_font(menuFont);
+	Reset();
 
-    for(int i=0; i < minion_num; i++)
-        al_destroy_bitmap(menu_army[i]);
+	al_destroy_bitmap(background);
 
-    menu_army.clear();
+	al_destroy_font(hotkey_font);
 }
 
 void
 Menu::Reset()
 {
-    HolyWater = 0;
+	holy_water = 0;
+
+	// clean all the minion_menu bitmaps
+	for(vector<ALLEGRO_BITMAP*>::iterator it = minion_menu_source.begin(); it != minion_menu_source.end(); it++)
+	{
+		al_destroy_bitmap((*it));
+	}
+	minion_menu_source.clear();
+
+	// clean minion_random_source
+	for(int i = 0; i<10; i++)
+	{
+		minion_random_source[i] = -1;
+	}
+
+	// clean minion_random_set
+	for(int i = 0; i<4; i++)
+	{
+		minion_random_set[i] = -1;
+	}
+
+	ToggleInitial();
 }
 
 void
 Menu::Draw()
 {
-    for(int i = 0; i < 4; i++)
+	al_draw_bitmap(background, menu_pos_x, menu_pos_y, 0);
+
+	// draw essential UI frame
+	al_draw_text(hotkey_font, menu_context_color, minion_card_1_pos_x, minion_card_1_pos_y - 15, 0, hotkey_set[0]);
+    al_draw_rectangle(minion_card_1_pos_x, minion_card_1_pos_y,
+                      minion_card_1_pos_x + minion_card_width, minion_card_1_pos_y + minion_card_height,
+                      card_frame_color, minion_card_display_thickness);
+    al_draw_text(hotkey_font, menu_context_color, minion_card_2_pos_x, minion_card_2_pos_y - 15, 0, hotkey_set[1]);
+    al_draw_rectangle(minion_card_2_pos_x, minion_card_2_pos_y,
+                      minion_card_2_pos_x + minion_card_width, minion_card_2_pos_y + minion_card_height,
+                      card_frame_color, minion_card_display_thickness);
+    al_draw_text(hotkey_font, menu_context_color, minion_card_3_pos_x, minion_card_3_pos_y - 15, 0, hotkey_set[2]);
+    al_draw_rectangle(minion_card_3_pos_x, minion_card_3_pos_y,
+                      minion_card_3_pos_x + minion_card_width, minion_card_3_pos_y + minion_card_height,
+                      card_frame_color, minion_card_display_thickness);
+    al_draw_text(hotkey_font, menu_context_color, minion_card_4_pos_x, minion_card_4_pos_y - 15, 0, hotkey_set[3]);
+    al_draw_rectangle(minion_card_4_pos_x, minion_card_4_pos_y,
+                      minion_card_4_pos_x + minion_card_width, minion_card_4_pos_y + minion_card_height,
+                      card_frame_color, minion_card_display_thickness);
+
+    // draw minion bitmaps
+    al_draw_bitmap(minion_menu_source[minion_random_set[0]], minion_card_1_pos_x, minion_card_1_pos_y, 0);
+    al_draw_bitmap(minion_menu_source[minion_random_set[1]], minion_card_2_pos_x, minion_card_2_pos_y, 0);
+    al_draw_bitmap(minion_menu_source[minion_random_set[2]], minion_card_3_pos_x, minion_card_3_pos_y, 0);
+    al_draw_bitmap(minion_menu_source[minion_random_set[3]], minion_card_4_pos_x, minion_card_4_pos_y, 0);
+
+    // show whether there is enough holy water
+    if(!EnoughHolyWater(minion_random_set[0]))
     {
-        menu_random[i] = rand()&10;
-        ALLEGRO_BITMAP *tem = menu_army[menu_random[i]];
-
-        int pos_x = offsetX;
-        int pos_y = offsetY + (ThumbHeight + gapY) * i;
-
-        al_draw_bitmap(tem, pos_x, pos_y, 0);
-
-        if(!Enough_HolyWater(menu_random[i]))
-            al_draw_filled_rectangle(pos_x, pos_y, pos_x + ThumbWidth, pos_y + ThumbHeight, al_map_rgba(100, 100, 100, 100));
-        else if(i == selectedArmy)
-            al_draw_rectangle(pos_x, pos_y, pos_x + ThumbWidth, pos_y + ThumbHeight, al_map_rgb(255, 0, 0), 0);
+        al_draw_filled_rectangle(minion_card_1_pos_x, minion_card_1_pos_y,
+                                 minion_card_1_pos_x + minion_card_width, minion_card_1_pos_y + minion_card_height,
+                                 enough_holy_water_color);
+    }
+    if(!EnoughHolyWater(minion_random_set[1]))
+    {
+        al_draw_filled_rectangle(minion_card_2_pos_x, minion_card_2_pos_y,
+                                 minion_card_2_pos_x + minion_card_width, minion_card_2_pos_y + minion_card_height,
+                                 enough_holy_water_color);
+    }
+    if(!EnoughHolyWater(minion_random_set[2]))
+    {
+        al_draw_filled_rectangle(minion_card_3_pos_x, minion_card_3_pos_y,
+                                 minion_card_3_pos_x + minion_card_width, minion_card_3_pos_y + minion_card_height,
+                                 enough_holy_water_color);
+    }
+    if(!EnoughHolyWater(minion_random_set[3]))
+    {
+        al_draw_filled_rectangle(minion_card_4_pos_x, minion_card_4_pos_y,
+                                 minion_card_4_pos_x + minion_card_width, minion_card_4_pos_y + minion_card_height,
+                                 enough_holy_water_color);
     }
 }
 
-bool
-Menu::isInRange(int point, int startPos, int length)
+void
+Menu::Initial(int _minion_random_source[])
 {
-    if(point >= startPos && point <= startPos + length)
-        return true;
+	char minion_name_set[10][30];
 
+	setMinionRandomSource(_minion_random_source);
+
+	// load the minion_menu_source
+	for(int i = 0;i<10;i++)
+	{
+		sprintf(minion_name_set[i], "./image/Menu/%s_menu.png", ArmyClass[minion_random_source[i]]);
+	}
+	for(int i = 0;i<10;i++)
+	{
+		ALLEGRO_BITMAP* tmp = al_load_bitmap(minion_name_set[i]);
+		minion_menu_source.push_back(tmp);
+	}
+
+	// randomly initialize the minion_random_set
+	/*
+	for(int i = 0; i<4; i++)
+    {
+        int n = rand()%10;
+
+        while(RandomNumExist(minion_random_source[n]))
+        {
+            n = rand()%10;
+        }
+
+        minion_random_set[i] = minion_random_source[n];
+    }
+    */
+
+    // for the debug usage
+    minion_random_set[0] = SABER;
+    minion_random_set[1] = SABER;
+    minion_random_set[2] = SABER;
+    minion_random_set[3] = SABER;
+    // end of for the debug usage
+
+	ToggleInitial();
+}
+
+bool
+Menu::RandomNumExist(int num)
+{
+    for(int i = 0; i<10; i++)
+    {
+        if(num == minion_random_set[i])
+        {
+            return true;
+        }
+    }
     return false;
 }
 
-int
-Menu::selected(int area)
+void
+Menu::GainHolyWater(int change)
 {
-    selectedArmy = -1;
+	if(holy_water + change >= 0 && holy_water + change <= max_holy_water)
+	{
+		holy_water += change;
+	}
 
-    for(int i = 0; i < 4; i++)
-    {
-        int pos_x = offsetX;
-        int pos_y = offsetY + (ThumbHeight + gapY) * i;
-
-        if(isInRange(area, pos_x, ThumbWidth) && isInRange(area, pos_y, ThumbHeight))
-        {
-            if(Enough_HolyWater(i))
-            {
-                selectedArmy = i;
-                break;
-            }
-        }
-    }
-
-    return selectedArmy;
+	if(team == red_team)
+	{
+		score_board->Set_Player_1_HolyWater(holy_water);
+	}
+	else if(team == blue_team)
+	{
+		score_board->Set_Player_2_HolyWater(holy_water);
+	}
 }
 
 bool
-Menu::Enough_HolyWater(int type)
+Menu::EnoughHolyWater(int type)
 {
-
-    if(type < 0 || type >= minion_num)
+	if(type < 0 || type >= minion_num)
+    {
         return false;
+    }
+    return (holy_water + needed_holy_water[type] >= 0);
+}
 
-    return (HolyWater + need_HolyWater[type] >= 0);
+void
+Menu::ChangeHolyWater(int type)
+{
+	holy_water += needed_holy_water[type];
+
+	if(team == red_team)
+	{
+		score_board->Set_Player_1_HolyWater(holy_water);
+	}
+	else if(team == blue_team)
+	{
+		score_board->Set_Player_2_HolyWater(holy_water);
+	}
+}
+
+void
+Menu::setMinionRandomSource(int _minion_random_source[])
+{
+	for(int i = 0;i<10;i++)
+	{
+		minion_random_source[i] = _minion_random_source[i];
+	}
+}
+
+int
+Menu::MinionSummon(int hotkey)
+{
+    int pre_minion;
+    int new_minion;
+    int n;
+
+    pre_minion = minion_random_set[hotkey];
+
+    if(!EnoughHolyWater(pre_minion))
+    {
+        return -1;
+    }
+    else
+    {
+        ChangeHolyWater(pre_minion);
+        minion_random_set[hotkey] = -1;
+
+        n = rand()%10;
+        while(RandomNumExist(minion_random_source[n]))
+        {
+            n = rand()%10;
+        }
+        minion_random_set[hotkey] = minion_random_source[n];
+
+        return pre_minion;
+    }
 }

@@ -4,6 +4,8 @@
 #include "global.h"
 #include "Circle.h"
 #include "Object.h"
+#include "Attack.h"
+#include "RangeAttack.h"
 
 #define AIR_UNIT 1
 #define GROUND_UNIT 2
@@ -14,6 +16,9 @@
 
 #define UPPER_BRIDGE 1
 #define LOWER_BRIDGE 2
+
+#define MELEE 0
+#define RANGER 1
 
 enum {LEFT=0, RIGHT, UP, DOWN};
 
@@ -26,21 +31,22 @@ public:
     bool OnTheBridge(double, double);
 
     void Draw();
-    /*virtual*/ void find_way();
-    /*virtual*/ void Move(); // return false if stop, including attack
+    void find_way();
+    void Move();
 
-    /*virtual*/ void LoadAnimation();
-    /*virtual*/ void LoadAttackAnimation();
+    void LoadAnimation();
+    virtual void LoadAttackAnimation() = 0;
 
-    bool DetectAttack();
-    /*virtual*/ void TriggerAttack();
-    /*virtual*/ void UpdateAttack();
+    bool DetectAttack(Minion*);
+    bool TriggerAttack(Minion*);
+    void UpdateAttack();
 
     int getHP() { return HealthPoint; }
     int getCost() { return cost; }
     int getTeam() { return team; }
     int getPathStage() { return path_stage; }
     int getIsAttack() { return is_attack; }
+    char* getName() { return name; }
 
     void setSpeed(double rate) { speed *= rate; }
     void setCost(double rate) { cost *= rate; }
@@ -48,7 +54,9 @@ public:
 
     void findClosestTower(int, int);
 
-    bool Substract_HP(int harm);
+    bool Substract_HP(int);
+
+    int attack_type = -1;
 
 protected:
     int team = red_team;
@@ -56,11 +64,23 @@ protected:
     int dir_sprite[4]; // numbers of the pictures of each directions
     int HealthPoint = 20;
     int speed = 1;
-    int cost = 5;
+    int cost = 1;
     char name[20];
+
+    //attack data
+    int attack_frequency = 20;
+    int attack_counter = 0;
+    int attack_harm_point = 5;
+    int attack_velocity = 10;
+
     // set of animation images
     std::vector<ALLEGRO_BITMAP*> moveImg;
     std::vector<ALLEGRO_BITMAP*> attackImg;
+
+    //set of movement
+    std::vector<Minion*> detect_set;
+    std::vector<Attack*> attack_set;
+    std::vector<RangeAttack*> rangeattack_set;
 private:
     // direction and index for "path"
     int cur_direction;

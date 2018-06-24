@@ -51,8 +51,15 @@ using namespace std;
 #define UPPER_BRIDGE_Y 100
 #define LOWER_BRIDGE_Y 400
 
-#define grid_width 20
-#define grid_height 20
+#define majortower_away_from_side 50
+#define upper_minortower_away_from_side 200
+#define lower_minortower_away_from_side 200
+#define majortower_pos_y 250
+#define upper_minortower_pos_y 100
+#define lower_minortower_pos_y 400
+
+#define grid_width 5
+#define grid_height 5
 #define NumOfGrid (arena_field_width / grid_width) * (arena_field_height / grid_height)
 
 #define player_1_color al_map_rgb(255, 69, 0)
@@ -60,11 +67,20 @@ using namespace std;
 
 #define max_holy_water 10
 
+#define map_num 4
 #define minion_num 30
 
+extern int game_map;
+
 extern char ArmyClass[][30];
+extern char TowerClass[][30];
+
+extern double background_sound_volume;
+extern double effect_sound_volume;
 
 enum {red_team = 0, blue_team};
-enum {SABER = 0};
+enum {hotkey_1 = 0, hotkey_2, hotkey_3, hotkey_4};
+enum {SABER = 0, SABER1, SABER2, SABER3, SABER4, SABER5, SABER6, SABER7, SABER8, SABER9};
+enum {MAJOR_TOWER = 0, MINOR_TOWER};
 
 #endif // GLOBAL_H_INCLUDED

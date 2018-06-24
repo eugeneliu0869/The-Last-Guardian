@@ -5,11 +5,11 @@
 #include "Circle.h"
 #include "Object.h"
 
-class Attack : public Object
+class RangeAttack : public Object
 {
 public:
-    Attack(Circle*, Circle*, int, int, ALLEGRO_BITMAP*);
-    ~Attack();
+    RangeAttack(Circle*, Circle*, int, int, vector<ALLEGRO_BITMAP*>);
+    ~RangeAttack();
 
     // override virtual function "Object::Draw"
     void Draw();

@@ -14,7 +14,8 @@ public:
 
     virtual void SceneInit() = 0;
     virtual void Draw() = 0;
-    virtual int LabelSelected(int, int) = 0;
+    virtual int LabelSelected(double, double) = 0;
+    virtual void LabelMouseHover(double, double) = 0;
 
 protected:
     ALLEGRO_BITMAP *background;
@@ -29,6 +30,8 @@ protected:
     ALLEGRO_COLOR label_text_color;
     ALLEGRO_COLOR context_color;
     ALLEGRO_COLOR context_text_color;
+
+    ALLEGRO_COLOR mouse_hover_color;
 
     bool initial = false;
 };
