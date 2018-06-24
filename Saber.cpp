@@ -10,7 +10,7 @@ Saber::Saber(int posx, int posy, int team) : Minion(posx, posy, team)
     dir_sprite[3] = 3; // DOWN dir_sprite
     HealthPoint = 20;
     speed = 1;
-    cost = 5;
+    cost = 1;
     strcpy(name, "Saber");
 
     Minion::LoadAnimation();
@@ -21,8 +21,6 @@ Saber::~Saber()
 {
 
 }
-
-
 
 void
 Saber::LoadAttackAnimation()

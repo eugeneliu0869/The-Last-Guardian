@@ -15,7 +15,6 @@
 #define UPPER_BRIDGE 1
 #define LOWER_BRIDGE 2
 
-#define abs(x) ((x>0) ? x : -x)
 enum {LEFT=0, RIGHT, UP, DOWN};
 
 class Minion : public Object
@@ -42,6 +41,7 @@ public:
     int getTeam() { return team; }
     int getPathStage() { return path_stage; }
     int getIsAttack() { return is_attack; }
+    char* getName() { return name; }
 
     void setSpeed(double rate) { speed *= rate; }
     void setCost(double rate) { cost *= rate; }
@@ -49,7 +49,7 @@ public:
 
     void findClosestTower(int, int);
 
-    bool Substract_HP(int harm);
+    bool Substract_HP(int);
 
 protected:
     int team = red_team;
@@ -57,7 +57,7 @@ protected:
     int dir_sprite[4]; // numbers of the pictures of each directions
     int HealthPoint = 20;
     int speed = 1;
-    int cost = 5;
+    int cost = 1;
     char name[20];
 
     // set of animation images
