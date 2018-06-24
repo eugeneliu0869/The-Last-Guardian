@@ -51,7 +51,7 @@ public:
     int getTeam() { return team; }
     int getPathStage() { return path_stage; }
     int getIsAttack() { return is_attack; }
-     getIsRange() { return is_range; }
+    bool getIsRange() { return is_range; }
 
     void setSpeed(double rate) { speed *= rate; }
     void setCost(double rate) { cost *= rate; }
