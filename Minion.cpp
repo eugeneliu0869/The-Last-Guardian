@@ -101,9 +101,15 @@ Minion::Draw()
 
 
     // get height and width of sprite bitmap
-    w = al_get_bitmap_width(moveImg[offset + cur_sprite]);
-    h = al_get_bitmap_height(moveImg[offset + cur_sprite]);
-
+    if(!getIsAttack())
+    {
+        w = al_get_bitmap_width(moveImg[offset + cur_sprite]);
+        h = al_get_bitmap_height(moveImg[offset + cur_sprite]);
+    }
+    else
+    {
+        w = al_get_bitmap_width(attackImg[offset + cur_sprite]);
+        h = al_get_bitmap_height(attackImg[offset + cur_sprite]);
     // draw bridge -> for debug usage
     al_draw_filled_rectangle(window_width/2 - BRIDGE_WIDTH/2, scoreboard_height + UPPER_BRIDGE_Y - BRIDGE_HEIGHT/2,
                              window_width/2 + BRIDGE_WIDTH/2, scoreboard_height + UPPER_BRIDGE_Y + BRIDGE_HEIGHT/2,
@@ -113,8 +119,10 @@ Minion::Draw()
                              al_map_rgb(255, 255, 255));
 
     // draw bitmap align grid edge
-    al_draw_bitmap(moveImg[offset + cur_sprite], attack_circle->x - w/2, attack_circle->y - (h - grid_height/2), 0);
-
+    if(!getIsAttack())
+        al_draw_bitmap(moveImg[offset + cur_sprite], attack_circle->x - w/2, attack_circle->y - (h - grid_height/2), 0);
+    else
+        al_draw_bitmap(attackImg[offset + cur_sprite], attack_circle->x - w/2, attack_circle->y - (h - grid_height/2), 0);
 ///debug use
     //cout << "(" << attack_circle->x << "," << attack_circle->y << ")" << endl;
     //cout << "direction : " << cur_direction << endl;
@@ -246,6 +254,21 @@ Minion::LoadAnimation()
             img = al_load_bitmap(buffer);
             if (img)
                 moveImg.push_back(img);
+            else
+                cout << "LoadAnimation failed!" << endl;
+        }
+    }
+    
+    for (int i=0; i<4; i++)
+    {
+        for (int j=0; j<dir_sprite[i]; j++)
+        {
+            ALLEGRO_BITMAP *img;
+            sprintf(buffer, "./image/Minion_a/%s/%s_%d.png", name, direction_name[i], j+1);
+
+            img = al_load_bitmap(buffer);
+            if (img)
+                attackImg.push_back(img);
             else
                 cout << "LoadAnimation failed!" << endl;
         }
