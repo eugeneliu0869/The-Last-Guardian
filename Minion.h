@@ -38,9 +38,9 @@ public:
 
 /// ATTACK RELATED FUNCTION
     bool DetectMinion(Minion*);
-    void TriggerAttackMinion();
+    bool TriggerAttackMinion();
     //bool DetectTower(Tower*);
-    void TriggerAttackTower(Tower*);
+    bool TriggerAttackTower(Tower*);
 
     void UpdateAttack();
     void resetAttackCounter() { attack_counter = 0; }
