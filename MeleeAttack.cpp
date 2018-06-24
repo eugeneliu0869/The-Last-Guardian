@@ -36,3 +36,4 @@ MeleeAttack::Draw()
 {
 
 }
+/// 砍的動畫打的時間
