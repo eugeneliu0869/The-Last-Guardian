@@ -1,7 +1,9 @@
 #include "Menu.h"
 
-Menu::Menu(int _team)
+Menu::Menu(int _team, ScoreBoard* _score_board)
 {
+    score_board = _score_board;
+
     team = _team;
 	holy_water = 0;
 
@@ -65,7 +67,8 @@ Menu::~Menu()
 	al_destroy_font(hotkey_font);
 }
 
-void Menu::Reset()
+void
+Menu::Reset()
 {
 	holy_water = 0;
 
@@ -91,7 +94,8 @@ void Menu::Reset()
 	ToggleInitial();
 }
 
-void Menu::Draw()
+void
+Menu::Draw()
 {
 	al_draw_bitmap(background, menu_pos_x, menu_pos_y, 0);
 
@@ -146,7 +150,8 @@ void Menu::Draw()
     }
 }
 
-void Menu::Initial(int _minion_random_source[])
+void
+Menu::Initial(int _minion_random_source[])
 {
 	char minion_name_set[10][30];
 
@@ -163,6 +168,8 @@ void Menu::Initial(int _minion_random_source[])
 		minion_menu_source.push_back(tmp);
 	}
 
+	// randomly initialize the minion_random_set
+	/*
 	for(int i = 0; i<4; i++)
     {
         int n = rand()%10;
@@ -174,11 +181,20 @@ void Menu::Initial(int _minion_random_source[])
 
         minion_random_set[i] = minion_random_source[n];
     }
+    */
+
+    // for the debug usage
+    minion_random_set[0] = SABER;
+    minion_random_set[1] = SABER;
+    minion_random_set[2] = SABER;
+    minion_random_set[3] = SABER;
+    // end of for the debug usage
 
 	ToggleInitial();
 }
 
-bool Menu::RandomNumExist(int num)
+bool
+Menu::RandomNumExist(int num)
 {
     for(int i = 0; i<10; i++)
     {
@@ -190,7 +206,8 @@ bool Menu::RandomNumExist(int num)
     return false;
 }
 
-void Menu::GainHolyWater(ScoreBoard* scoreboard, int change)
+void
+Menu::GainHolyWater(int change)
 {
 	if(holy_water + change >= 0 && holy_water + change <= max_holy_water)
 	{
@@ -199,15 +216,16 @@ void Menu::GainHolyWater(ScoreBoard* scoreboard, int change)
 
 	if(team == red_team)
 	{
-		scoreboard->Set_Player_1_HolyWater(holy_water);
+		score_board->Set_Player_1_HolyWater(holy_water);
 	}
 	else if(team == blue_team)
 	{
-		scoreboard->Set_Player_2_HolyWater(holy_water);
+		score_board->Set_Player_2_HolyWater(holy_water);
 	}
 }
 
-bool Menu::EnoughHolyWater(int type)
+bool
+Menu::EnoughHolyWater(int type)
 {
 	if(type < 0 || type >= minion_num)
     {
@@ -216,21 +234,23 @@ bool Menu::EnoughHolyWater(int type)
     return (holy_water + needed_holy_water[type] >= 0);
 }
 
-void Menu::ChangeHolyWater(ScoreBoard* scoreboard, int type)
+void
+Menu::ChangeHolyWater(int type)
 {
 	holy_water += needed_holy_water[type];
 
 	if(team == red_team)
 	{
-		scoreboard->Set_Player_1_HolyWater(holy_water);
+		score_board->Set_Player_1_HolyWater(holy_water);
 	}
 	else if(team == blue_team)
 	{
-		scoreboard->Set_Player_2_HolyWater(holy_water);
+		score_board->Set_Player_2_HolyWater(holy_water);
 	}
 }
 
-void Menu::setMinionRandomSource(int _minion_random_source[])
+void
+Menu::setMinionRandomSource(int _minion_random_source[])
 {
 	for(int i = 0;i<10;i++)
 	{
@@ -238,7 +258,31 @@ void Menu::setMinionRandomSource(int _minion_random_source[])
 	}
 }
 
-int Menu::MinionSummon(int hotkey)
+int
+Menu::MinionSummon(int hotkey)
 {
+    int pre_minion;
+    int new_minion;
+    int n;
 
+    pre_minion = minion_random_set[hotkey];
+
+    if(!EnoughHolyWater(pre_minion))
+    {
+        return -1;
+    }
+    else
+    {
+        ChangeHolyWater(pre_minion);
+        minion_random_set[hotkey] = -1;
+
+        n = rand()%10;
+        while(RandomNumExist(minion_random_source[n]))
+        {
+            n = rand()%10;
+        }
+        minion_random_set[hotkey] = minion_random_source[n];
+
+        return pre_minion;
+    }
 }

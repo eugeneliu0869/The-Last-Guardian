@@ -8,6 +8,35 @@ GameWindow::GameWindow()
         show_error_message("Allegro 5 initialization fail.");
     }
 
+    // For creating a new map, you need to put the needed images into the folder "./image/create_new_map", and then turn on the following comments.
+    // After creating the new map, you need to cut it into proper size (140 pixel * 50 pixel), and then put it into the folder "./image/SelectScene".
+    /*
+    cout << "You are now in the map creating mode. If you want to go back to the playing mode, please turn off the map_creating codes as comments.\n";
+
+    ALLEGRO_DISPLAY* _display = NULL;
+    ALLEGRO_BITMAP* _background = NULL, * _river = NULL, * _bridge = NULL;
+
+    _display = al_create_display(1040, 500);
+
+    al_init_acodec_addon();
+    al_init_image_addon();
+    al_init_primitives_addon();
+
+    _background = al_load_bitmap("./image/create_new_map/Background.png"); // background's size should be (1040 pixel * 500 pixel)
+    _river = al_load_bitmap("./image/create_new_map/River.png"); // river's size should be (40 pixel * 500 pixel)
+    _bridge = al_load_bitmap("./image/create_new_map/Bridge.png"); // bridge's size should be (100 pixel * 30 pixel)
+
+    al_draw_bitmap(_background, 0, 0, 0);
+    al_draw_bitmap(_river, 520 - 40/2, 0, 0);
+    al_draw_bitmap(_bridge, 520 - 100/2, 100 - 3/2, 0);
+    al_draw_bitmap(_bridge, 520 - 100/2, 400 - 3/2, 0);
+
+    al_flip_display();
+
+    system("pause");
+    exit(9);
+    */
+
     cout << "Game initializing...\n";
 
     display = al_create_display(window_width, window_height);
@@ -115,14 +144,14 @@ bool GameWindow::is_in_arena_field(int player, int pos_x, int pos_y)
 }
 
 Minion*
-GameWindow::create_minion(int selected_minion)
+GameWindow::create_minion(int selected_minion, int team, int pos_x, int pos_y)
 {
     Minion* m = NULL;
 
     switch(selected_minion)
     {
         case SABER:
-            m = new Saber(100, 100, red_team);
+            m = new Saber(pos_x, pos_y, team);
             break;
     }
 
@@ -141,20 +170,25 @@ void GameWindow::set_effect_sound_volume(double volume)
 }
 // end of set game sounds' volume
 
-// game control function
-void
-GameWindow::game_init()
+// set map
+void GameWindow::set_map(int _game_map)
 {
-    srand(time(NULL));
+    game_map = _game_map;
 
-    score_board = new ScoreBoard();
-    player_1_menu = new Menu(red_team);
-    player_2_menu = new Menu(blue_team);
-
-    icon = al_load_bitmap("./image/Icon.png");
+    if(background != NULL)
+    {
+        al_destroy_bitmap(background);
+    }
+    if(river != NULL)
+    {
+        al_destroy_bitmap(river);
+    }
+    if(bridge != NULL)
+    {
+        al_destroy_bitmap(bridge);
+    }
 
     char background_buffer[50], river_buffer[50], bridge_buffer[50];
-    game_map = 1;
 
     sprintf(background_buffer, "./image/RunScene/Map_%d/Background.png", game_map);
     sprintf(river_buffer, "./image/RunScene/Map_%d/River.png", game_map);
@@ -163,6 +197,29 @@ GameWindow::game_init()
     background = al_load_bitmap(background_buffer);
     river = al_load_bitmap(river_buffer);
     bridge = al_load_bitmap(bridge_buffer);
+}
+// end of set map
+
+// game control function
+void
+GameWindow::game_init()
+{
+    srand(time(NULL));
+
+    score_board = new ScoreBoard();
+    player_1_menu = new Menu(red_team, score_board);
+    player_2_menu = new Menu(blue_team, score_board);
+
+    start_scene = new StartScene();
+    setting_scene = new SettingScene();
+    select_scene = new SelectScene();
+    pause_scene = new PauseScene();
+    result_scene = new ResultScene();
+    exit_scene = new ExitScene();
+
+    icon = al_load_bitmap("./image/Icon.png");
+
+    set_map(1);
 
     if(icon == NULL || background == NULL || river == NULL || bridge == NULL)
     {
@@ -209,10 +266,27 @@ GameWindow::game_init()
     player_2_holy_water_counter = 0;
     // end of players' interface variables initialization
 
-    // for the debug usage
-    Minion* m = create_minion(SABER);
-    MinionSet.push_back(m);
+    // tower initialization
+    Tower* t;
 
+    // create red team's towers
+    t = new MinorTower(menu_width + upper_minortower_away_from_side, scoreboard_height + upper_minortower_pos_y);
+    Red_Team_Tower_Set.push_back(t);
+    t = new MajorTower(menu_width + majortower_away_from_side, scoreboard_height + majortower_pos_y);
+    Red_Team_Tower_Set.push_back(t);
+    t = new MinorTower(menu_width + lower_minortower_away_from_side, scoreboard_height + lower_minortower_pos_y);
+    Red_Team_Tower_Set.push_back(t);
+
+    // create blue team's towers
+    t = new MinorTower(window_width - menu_width - upper_minortower_away_from_side, scoreboard_height + upper_minortower_pos_y);
+    Blue_Team_Tower_Set.push_back(t);
+    t = new MajorTower(window_width - menu_width - majortower_away_from_side, scoreboard_height + majortower_pos_y);
+    Blue_Team_Tower_Set.push_back(t);
+    t = new MinorTower(window_width - menu_width - lower_minortower_away_from_side, scoreboard_height + lower_minortower_pos_y);
+    Blue_Team_Tower_Set.push_back(t);
+    // end of tower initialization
+
+    // for the debug usage
     player_1_minion_selected_source[0] = SABER;
     player_1_minion_selected_source[1] = SABER1;
     player_1_minion_selected_source[2] = SABER2;
@@ -244,7 +318,7 @@ GameWindow::game_init()
     // end of player 1 initialization
 
     // player 2 initialization
-    player_2_arena_field_control_pos_x = window_width - menu_width - arena_field_width;
+    player_2_arena_field_control_pos_x = window_width - menu_width - player_arena_field_control_grid_width;
     player_2_arena_field_control_pos_y = scoreboard_height;
     // end of player 2 initialization
 }
@@ -266,13 +340,6 @@ GameWindow::game_play()
 {
     int msg = -1;
 
-    StartScene* start_scene = new StartScene();
-    SettingScene* setting_scene = new SettingScene();
-    SelectScene* select_scene = new SelectScene();
-    PauseScene* pause_scene = new PauseScene();
-    ResultScene* result_scene = new ResultScene();
-    ExitScene* exit_scene = new ExitScene();
-
     while(msg != GAME_EXIT)
     {
         al_set_sample_instance_gain(start_sound, background_sound_volume);
@@ -283,13 +350,13 @@ GameWindow::game_play()
         switch(msg)
         {
             case GAME_INIT:
-                msg = game_start_scene(start_scene);
+                msg = game_start_scene();
                 break;
             case GAME_SETTING:
-                msg = game_setting_scene(setting_scene);
+                msg = game_setting_scene();
                 break;
             case GAME_SELECT:
-                msg = game_select_scene(select_scene);
+                msg = game_select_scene();
                 break;
             case GAME_BEGIN:
                 game_begin();
@@ -299,23 +366,16 @@ GameWindow::game_play()
                 msg = game_run_scene();
                 break;
             case GAME_PAUSE:
-                msg = game_pause_scene(pause_scene);
+                msg = game_pause_scene();
                 break;
             case GAME_RESULT:
-                msg = game_result_scene(result_scene);
+                msg = game_result_scene();
                 break;
             /*case GAME_EXIT:
-                msg = game_exit_scene(exit_scene);
+                msg = game_exit_scene();
                 break;*/
         }
     }
-
-    delete start_scene;
-    delete setting_scene;
-    delete select_scene;
-    delete pause_scene;
-    delete result_scene;
-    delete exit_scene;
 
     show_error_message("Game terminate.");
 }
@@ -323,11 +383,51 @@ GameWindow::game_play()
 void
 GameWindow::game_reset()
 {
+    // game map reset
+    set_map(1);
+
     // game control variables reset
     redraw = false;
     mute = false;
     pause = false;
     back_scene = GAME_INIT;
+
+    // select scene reset
+    select_scene->Reset();
+
+    // players' interface variables reset
+    holy_water_gain_speed = 60;
+    player_1_holy_water_counter = 0;
+    player_2_holy_water_counter = 0;
+
+    // towers reset
+    for(auto i : Red_Team_Tower_Set)
+    {
+        delete i;
+    }
+    for(auto i : Blue_Team_Tower_Set)
+    {
+        delete i;
+    }
+
+    Tower* t;
+
+    // create red team's towers
+    t = new MinorTower(menu_width + upper_minortower_away_from_side, scoreboard_height + upper_minortower_pos_y);
+    Red_Team_Tower_Set.push_back(t);
+    t = new MajorTower(menu_width + majortower_away_from_side, scoreboard_height + majortower_pos_y);
+    Red_Team_Tower_Set.push_back(t);
+    t = new MinorTower(menu_width + lower_minortower_away_from_side, scoreboard_height + lower_minortower_pos_y);
+    Red_Team_Tower_Set.push_back(t);
+
+    // create blue team's towers
+    t = new MinorTower(window_width - menu_width - upper_minortower_away_from_side, scoreboard_height + upper_minortower_pos_y);
+    Blue_Team_Tower_Set.push_back(t);
+    t = new MajorTower(window_width - menu_width - majortower_away_from_side, scoreboard_height + majortower_pos_y);
+    Blue_Team_Tower_Set.push_back(t);
+    t = new MinorTower(window_width - menu_width - lower_minortower_away_from_side, scoreboard_height + lower_minortower_pos_y);
+    Blue_Team_Tower_Set.push_back(t);
+    // end of tower reset
 
     // score board reset
     score_board->Reset();
@@ -371,6 +471,17 @@ GameWindow::game_destroy()
     al_destroy_sample_instance(background_sound);
     al_destroy_sample_instance(effect_sound);
     al_destroy_sample_instance(result_sound);
+
+    delete score_board;
+    delete player_1_menu;
+    delete player_2_menu;
+
+    delete start_scene;
+    delete setting_scene;
+    delete select_scene;
+    delete pause_scene;
+    delete result_scene;
+    delete exit_scene;
 }
 // end of game control function
 
@@ -397,11 +508,6 @@ GameWindow::draw_running_animation()
     //cout << "menu->p1: " << player_1_menu->getHolyWater() << endl;
     //cout << "menu->p2: " << player_2_menu->getHolyWater() << endl;
 
-    for(auto i : MinionSet)
-    {
-        i->Draw();
-    }
-
     // draw players' arena control display
     al_draw_text(Small_font, player_1_color, player_1_arena_field_control_pos_x, player_1_arena_field_control_pos_y - 15, 0, "p1");
     al_draw_rectangle(player_1_arena_field_control_pos_x,
@@ -417,6 +523,26 @@ GameWindow::draw_running_animation()
                       player_2_arena_field_control_pos_y + player_arena_field_control_grid_height,
                       player_2_color, player_arena_field_control_display_thickness);
 
+    // draw minions
+    for(auto i : Red_Team_Minion_Set)
+    {
+        i->Draw();
+    }
+    for(auto i : Blue_Team_Minion_Set)
+    {
+        i->Draw();
+    }
+
+    // draw towers
+    for(auto i : Red_Team_Tower_Set)
+    {
+        i->Draw();
+    }
+    for(auto i : Blue_Team_Tower_Set)
+    {
+        i->Draw();
+    }
+
     al_flip_display();
 }
 // end of draw running animation
@@ -425,20 +551,131 @@ GameWindow::draw_running_animation()
 int
 GameWindow::game_update()
 {
-    vector<Minion*>::iterator it;
+    vector<Minion*>::iterator mit;
 
-    for(it = MinionSet.begin(); it != MinionSet.end(); it++)
+    for(mit = Red_Team_Minion_Set.begin(); mit != Red_Team_Minion_Set.end(); mit++)
     {
-        (*it)->findClosestTower(1000, 300);
-        (*it)->find_way();
-        (*it)->Move();
+        (*mit)->findClosestTower(1000, 300); // for the debug usage
+        (*mit)->find_way();
+        (*mit)->Move();
     }
+    for(mit = Blue_Team_Minion_Set.begin(); mit != Blue_Team_Minion_Set.end(); mit++)
+    {
+        (*mit)->findClosestTower(300, 300); // for the debug usage
+        (*mit)->find_way();
+        (*mit)->Move();
+    }
+
+    // checking all the tower's working status
+    vector<Tower*>::iterator tit;
+
+    // for red team towers -> blue_team_minions
+    for(tit = Red_Team_Tower_Set.begin(); tit != Red_Team_Tower_Set.end(); tit++)
+    {
+        Tower* t = (*tit);
+
+        for(int i = 0; i<Blue_Team_Minion_Set.size(); i++)
+        {
+            Minion* m = Blue_Team_Minion_Set[i];
+
+            if(t->DetectAttack(m))
+            {
+                t->ResetAttackCounter();
+                break;
+            }
+        }
+    }
+
+    for(int i = 0; i<Blue_Team_Minion_Set.size(); i++)
+    {
+        bool isDestroyed = false;
+        Minion* m = Blue_Team_Minion_Set[i];
+
+        for(tit = Red_Team_Tower_Set.begin(); tit != Red_Team_Tower_Set.end(); tit++)
+        {
+            Tower* t = (*tit);
+
+            if(t->TriggerAttack(m))
+            {
+                isDestroyed = true;
+                break;
+            }
+        }
+
+        if(isDestroyed)
+        {
+            Minion* m = Blue_Team_Minion_Set[i];
+
+            Blue_Team_Minion_Set.erase(Blue_Team_Minion_Set.begin() + i);
+            i--;
+            delete m;
+        }
+    }
+
+    for(tit = Red_Team_Tower_Set.begin(); tit != Red_Team_Tower_Set.end(); tit++)
+    {
+        Tower* t = (*tit);
+
+        t->UpdateAttack();
+    }
+    // end of for red team towers -> blue_team_minions
+    // for blue team towers -> red_team_minions
+    for(tit = Blue_Team_Tower_Set.begin(); tit != Blue_Team_Tower_Set.end(); tit++)
+    {
+        Tower* t = (*tit);
+
+        for(int i = 0; i<Red_Team_Minion_Set.size(); i++)
+        {
+            Minion* m = Red_Team_Minion_Set[i];
+
+            if(t->DetectAttack(m))
+            {
+                t->ResetAttackCounter();
+                break;
+            }
+        }
+    }
+
+    for(int i = 0; i<Red_Team_Minion_Set.size(); i++)
+    {
+        bool isDestroyed = false;
+        Minion* m = Red_Team_Minion_Set[i];
+
+        for(tit = Blue_Team_Tower_Set.begin(); tit != Blue_Team_Tower_Set.end(); tit++)
+        {
+            Tower* t = (*tit);
+
+            if(t->TriggerAttack(m))
+            {
+                isDestroyed = true;
+                break;
+            }
+        }
+
+        if(isDestroyed)
+        {
+            Minion* m = Red_Team_Minion_Set[i];
+
+            Red_Team_Minion_Set.erase(Red_Team_Minion_Set.begin() + i);
+            i--;
+            delete m;
+        }
+    }
+
+    for(tit = Blue_Team_Tower_Set.begin(); tit != Blue_Team_Tower_Set.end(); tit++)
+    {
+        Tower* t = (*tit);
+
+        t->UpdateAttack();
+    }
+    // end of for blue team towers -> red_team_minions
+    // end of checking all the tower's working status
 }
 // end of game update
 
 // game scene
 int
-GameWindow::game_start_scene(StartScene* start_scene)
+GameWindow::game_start_scene()
 {
     int msg = GAME_INIT;
 
@@ -451,13 +688,13 @@ GameWindow::game_start_scene(StartScene* start_scene)
 
     if(!al_is_event_queue_empty(event_queue))
     {
-        msg = process_event_start_scene(start_scene);
+        msg = process_event_start_scene();
     }
     return msg;
 }
 
 int
-GameWindow::game_setting_scene(SettingScene* setting_scene)
+GameWindow::game_setting_scene()
 {
     int msg = GAME_SETTING;
 
@@ -470,21 +707,26 @@ GameWindow::game_setting_scene(SettingScene* setting_scene)
 
     if(!al_is_event_queue_empty(event_queue))
     {
-        msg = process_event_setting_scene(setting_scene);
+        msg = process_event_setting_scene();
     }
     return msg;
 }
 
 int
-GameWindow::game_select_scene(SelectScene* select_scene)
+GameWindow::game_select_scene()
 {
     int msg = GAME_SELECT;
 
+    if(!select_scene->get_initial())
+    {
+        select_scene->SceneInit();
+        select_scene->toggle_initial();
+    }
     select_scene->Draw();
 
     if(!al_is_event_queue_empty(event_queue))
     {
-        msg = process_event_select_scene(select_scene);
+        msg = process_event_select_scene();
     }
     return msg;
 }
@@ -502,7 +744,7 @@ GameWindow::game_run_scene()
 }
 
 int
-GameWindow::game_pause_scene(PauseScene* pause_scene)
+GameWindow::game_pause_scene()
 {
     int msg = GAME_PAUSE;
 
@@ -516,13 +758,13 @@ GameWindow::game_pause_scene(PauseScene* pause_scene)
 
     if(!al_is_event_queue_empty(event_queue))
     {
-        msg = process_event_pause_scene(pause_scene);
+        msg = process_event_pause_scene();
     }
     return msg;
 }
 
 int
-GameWindow::game_result_scene(ResultScene* result_scene)
+GameWindow::game_result_scene()
 {
     int msg = GAME_RESULT;
 
@@ -530,13 +772,13 @@ GameWindow::game_result_scene(ResultScene* result_scene)
 
     if(!al_is_event_queue_empty(event_queue))
     {
-        msg = process_event_result_scene(result_scene);
+        msg = process_event_result_scene();
     }
     return msg;
 }
 
 int
-GameWindow::game_exit_scene(ExitScene* exit_scene)
+GameWindow::game_exit_scene()
 {
     int msg = GAME_EXIT;
 
@@ -544,7 +786,7 @@ GameWindow::game_exit_scene(ExitScene* exit_scene)
 
     if(!al_is_event_queue_empty(event_queue))
     {
-        msg = process_event_exit_scene(exit_scene);
+        msg = process_event_exit_scene();
     }
     return msg;
 }
@@ -552,7 +794,7 @@ GameWindow::game_exit_scene(ExitScene* exit_scene)
 
 // game process of update event
 int
-GameWindow::process_event_start_scene(StartScene* start_scene)
+GameWindow::process_event_start_scene()
 {
     al_wait_for_event(event_queue, &event);
 
@@ -587,7 +829,7 @@ GameWindow::process_event_start_scene(StartScene* start_scene)
 }
 
 int
-GameWindow::process_event_setting_scene(SettingScene* setting_scene)
+GameWindow::process_event_setting_scene()
 {
     al_wait_for_event(event_queue, &event);
 
@@ -657,7 +899,7 @@ GameWindow::process_event_setting_scene(SettingScene* setting_scene)
 }
 
 int
-GameWindow::process_event_select_scene(SelectScene* select_scene)
+GameWindow::process_event_select_scene()
 {
     al_wait_for_event(event_queue, &event);
 
@@ -676,6 +918,13 @@ GameWindow::process_event_select_scene(SelectScene* select_scene)
     {
         if(event.mouse.button == 1)
         {
+            select_scene->map_selected(mouse_x, mouse_y);
+            set_map(game_map);
+
+            if(select_scene->LabelSelected(mouse_x, mouse_y) == GAME_BACK)
+            {
+                return back_scene;
+            }
             return select_scene->LabelSelected(mouse_x, mouse_y);
         }
     }
@@ -705,13 +954,13 @@ GameWindow::process_event_run_scene()
 
             if(player_1_holy_water_counter == 0)
             {
-                player_1_menu->GainHolyWater(score_board, 1);
+                player_1_menu->GainHolyWater(1);
             }
             player_1_holy_water_counter = (player_1_holy_water_counter + 1) % holy_water_gain_speed;
 
             if(player_2_holy_water_counter == 0)
             {
-                player_2_menu->GainHolyWater(score_board, 1);
+                player_2_menu->GainHolyWater(1);
             }
             player_2_holy_water_counter = (player_2_holy_water_counter + 1) % holy_water_gain_speed;
         }
@@ -778,19 +1027,87 @@ GameWindow::process_event_run_scene()
         }
         else if(event.keyboard.keycode == ALLEGRO_KEY_B) // player 1 army 1 card hot key
         {
-            // contact with menu
+            Minion* m = NULL;
+            int new_minion = player_1_menu->MinionSummon(hotkey_1);
+
+            if(new_minion == -1)
+            {
+                cout << "Player 1 cannot create the minion because of lacking of the holy water.\n";
+            }
+            else
+            {
+                m = create_minion(new_minion, red_team,
+                              player_1_arena_field_control_pos_x + player_arena_field_control_grid_width/2,
+                              player_1_arena_field_control_pos_y + player_arena_field_control_grid_height/2);
+                Red_Team_Minion_Set.push_back(m);
+
+                cout << "Player 1 consumes " << m->getCost()
+                     << " point(s) of holy water to create a(n) " <<  m->getName()
+                     << " at position (" << m->getAttackX() << "," << m->getAttackY() << ").\n";
+            }
         }
         else if(event.keyboard.keycode == ALLEGRO_KEY_N) // player 1 army 2 card hot key
         {
-            // contact with menu
+            Minion* m = NULL;
+            int new_minion = player_1_menu->MinionSummon(hotkey_2);
+
+            if(new_minion == -1)
+            {
+                cout << "Player 1 cannot create the minion because of lacking of the holy water.\n";
+            }
+            else
+            {
+                m = create_minion(new_minion, red_team,
+                              player_1_arena_field_control_pos_x + player_arena_field_control_grid_width/2,
+                              player_1_arena_field_control_pos_y + player_arena_field_control_grid_height/2);
+                Red_Team_Minion_Set.push_back(m);
+
+                cout << "Player 1 consumes " << m->getCost()
+                     << " point(s) of holy water to create a(n) " <<  m->getName()
+                     << " at position (" << m->getAttackX() << "," << m->getAttackY() << ").\n";
+            }
         }
         else if(event.keyboard.keycode == ALLEGRO_KEY_M) // player 1 army 3 card hot key
         {
-            // contact with menu
+            Minion* m = NULL;
+            int new_minion = player_1_menu->MinionSummon(hotkey_3);
+
+            if(new_minion == -1)
+            {
+                cout << "Player 1 cannot create the minion because of lacking of the holy water.\n";
+            }
+            else
+            {
+                m = create_minion(new_minion, red_team,
+                              player_1_arena_field_control_pos_x + player_arena_field_control_grid_width/2,
+                              player_1_arena_field_control_pos_y + player_arena_field_control_grid_height/2);
+                Red_Team_Minion_Set.push_back(m);
+
+                cout << "Player 1 consumes " << m->getCost()
+                     << " point(s) of holy water to create a(n) " <<  m->getName()
+                     << " at position (" << m->getAttackX() << "," << m->getAttackY() << ").\n";
+            }
         }
         else if(event.keyboard.keycode == ALLEGRO_KEY_G) // player 1 army 4 card hot key
         {
-            // contact with menu
+            Minion* m = NULL;
+            int new_minion = player_1_menu->MinionSummon(hotkey_4);
+
+            if(new_minion == -1)
+            {
+                cout << "Player 1 cannot create the minion because of lacking of the holy water.\n";
+            }
+            else
+            {
+                m = create_minion(new_minion, red_team,
+                              player_1_arena_field_control_pos_x + player_arena_field_control_grid_width/2,
+                              player_1_arena_field_control_pos_y + player_arena_field_control_grid_height/2);
+                Red_Team_Minion_Set.push_back(m);
+
+                cout << "Player 1 consumes " << m->getCost()
+                     << " point(s) of holy water to create a(n) " <<  m->getName()
+                     << " at position (" << m->getAttackX() << "," << m->getAttackY() << ").\n";
+            }
         }
         // end of player 1 key event
         // player 2 key event
@@ -828,19 +1145,87 @@ GameWindow::process_event_run_scene()
         }
         else if(event.keyboard.keycode == ALLEGRO_KEY_PAD_1) // player 2 army 1 card hot key
         {
-            // contact with menu
+            Minion* m = NULL;
+            int new_minion = player_2_menu->MinionSummon(hotkey_1);
+
+            if(new_minion == -1)
+            {
+                cout << "Player 2 cannot create the minion because of lacking of the holy water.\n";
+            }
+            else
+            {
+                m = create_minion(new_minion, blue_team,
+                              player_2_arena_field_control_pos_x + player_arena_field_control_grid_width/2,
+                              player_2_arena_field_control_pos_y + player_arena_field_control_grid_height/2);
+                Blue_Team_Minion_Set.push_back(m);
+
+                cout << "Player 2 consumes " << m->getCost()
+                     << " point(s) of holy water to create a(n) " <<  m->getName()
+                     << " at position (" << m->getAttackX() << "," << m->getAttackY() << ").\n";
+            }
         }
         else if(event.keyboard.keycode == ALLEGRO_KEY_PAD_2) // player 2 army 2 card hot key
         {
-            // contact with menu
+            Minion* m = NULL;
+            int new_minion = player_2_menu->MinionSummon(hotkey_2);
+
+            if(new_minion == -1)
+            {
+                cout << "Player 2 cannot create the minion because of lacking of the holy water.\n";
+            }
+            else
+            {
+                m = create_minion(new_minion, blue_team,
+                              player_2_arena_field_control_pos_x + player_arena_field_control_grid_width/2,
+                              player_2_arena_field_control_pos_y + player_arena_field_control_grid_height/2);
+                Blue_Team_Minion_Set.push_back(m);
+
+                cout << "Player 2 consumes " << m->getCost()
+                     << " point(s) of holy water to create a(n) " <<  m->getName()
+                     << " at position (" << m->getAttackX() << "," << m->getAttackY() << ").\n";
+            }
         }
         else if(event.keyboard.keycode == ALLEGRO_KEY_PAD_3) // player 2 army 3 card hot key
         {
-            // contact with menu
+            Minion* m = NULL;
+            int new_minion = player_2_menu->MinionSummon(hotkey_3);
+
+            if(new_minion == -1)
+            {
+                cout << "Player 2 cannot create the minion because of lacking of the holy water.\n";
+            }
+            else
+            {
+                m = create_minion(new_minion, blue_team,
+                              player_2_arena_field_control_pos_x + player_arena_field_control_grid_width/2,
+                              player_2_arena_field_control_pos_y + player_arena_field_control_grid_height/2);
+                Blue_Team_Minion_Set.push_back(m);
+
+                cout << "Player 2 consumes " << m->getCost()
+                     << " point(s) of holy water to create a(n) " <<  m->getName()
+                     << " at position (" << m->getAttackX() << "," << m->getAttackY() << ").\n";
+            }
         }
         else if(event.keyboard.keycode == ALLEGRO_KEY_PAD_4) // player 2 army 4 card hot key
         {
-            // contact with menu
+            Minion* m = NULL;
+            int new_minion = player_2_menu->MinionSummon(hotkey_4);
+
+            if(new_minion == -1)
+            {
+                cout << "Player 2 cannot create the minion because of lacking of the holy water.\n";
+            }
+            else
+            {
+                m = create_minion(new_minion, blue_team,
+                              player_2_arena_field_control_pos_x + player_arena_field_control_grid_width/2,
+                              player_2_arena_field_control_pos_y + player_arena_field_control_grid_height/2);
+                Blue_Team_Minion_Set.push_back(m);
+
+                cout << "Player 2 consumes " << m->getCost()
+                     << " point(s) of holy water to create a(n) " <<  m->getName()
+                     << " at position (" << m->getAttackX() << "," << m->getAttackY() << ").\n";
+            }
         }
         // end of player 2 key event
     }
@@ -861,7 +1246,7 @@ GameWindow::process_event_run_scene()
 }
 
 int
-GameWindow::process_event_pause_scene(PauseScene* pause_scene)
+GameWindow::process_event_pause_scene()
 {
     al_wait_for_event(event_queue, &event);
 
@@ -936,7 +1321,7 @@ GameWindow::process_event_pause_scene(PauseScene* pause_scene)
 }
 
 int
-GameWindow::process_event_result_scene(ResultScene* result_scene)
+GameWindow::process_event_result_scene()
 {
     al_wait_for_event(event_queue, &event);
 
@@ -970,7 +1355,7 @@ GameWindow::process_event_result_scene(ResultScene* result_scene)
 }
 
 int
-GameWindow::process_event_exit_scene(ExitScene* exit_scene)
+GameWindow::process_event_exit_scene()
 {
     al_wait_for_event(event_queue, &event);
 

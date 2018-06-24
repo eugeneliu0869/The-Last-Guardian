@@ -18,7 +18,7 @@
 class Menu : public Object
 {
 public:
-    Menu(int);
+    Menu(int, ScoreBoard*);
     ~Menu();
 
     void ToggleInitial() { initial = !initial; }
@@ -32,25 +32,26 @@ public:
     int getHolyWater() { return holy_water; }
 	int getMinionHolyWater(int type) { return needed_holy_water[type]; }
 
-	void GainHolyWater(ScoreBoard*, int);
+	void GainHolyWater(int);
 
     bool EnoughHolyWater(int);
-    void ChangeHolyWater(ScoreBoard*, int);
+    void ChangeHolyWater(int);
 
     void setMinionRandomSource(int*);
 
     int MinionSummon(int hotkey);
 
 private:
+    ScoreBoard* score_board;
+
     int team;
+    bool initial = false;
 
 	vector<ALLEGRO_BITMAP*> minion_menu_source;
 
     ALLEGRO_BITMAP* background;
 
 	ALLEGRO_FONT* hotkey_font;
-
-	bool initial = false;
 
 	// UI variables
 	ALLEGRO_COLOR menu_context_color;

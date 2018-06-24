@@ -7,6 +7,10 @@
 #include "Minion.h"
 #include "Saber.h"
 #include "RangeAttack.h"
+#include "Tower.h"
+#include "MajorTower.h"
+#include "MinorTower.h"
+#include "Attack.h"
 #include "Slider.h"
 #include "StartScene.h"
 #include "SettingScene.h"
@@ -21,13 +25,6 @@
 #define player_arena_field_control_max_pos_x = arena_field_width / player_control_grid_width
 #define player_arena_field_control_max_pos_y = arena_field_height / player_control_grid_height
 #define player_arena_field_control_display_thickness 2
-
-#define player_army_card_width 60
-#define player_army_card_height 60
-#define player_army_card_horizontal_difference 10
-#define player_army_card_top_difference 70
-#define player_army_card_vertical_difference 40
-#define player_army_card_display_thickness 2
 
 // clock rate
 const float FPS = 60;
@@ -50,11 +47,14 @@ public:
     bool is_in_arena_field(int, int, int);
 
     // create minion
-    Minion* create_minion(int);
+    Minion* create_minion(int, int, int, int);
 
     // set game sounds' volume
     void set_background_sound_volume(double);
     void set_effect_sound_volume(double);
+
+    // set game map
+    void set_map(int);
 
     // game control function
     void game_init();
@@ -70,22 +70,22 @@ public:
     int game_update();
 
     // game scene
-    int game_start_scene(StartScene*);
-    int game_setting_scene(SettingScene*);
-    int game_select_scene(SelectScene*);
+    int game_start_scene();
+    int game_setting_scene();
+    int game_select_scene();
     int game_run_scene();
-    int game_pause_scene(PauseScene*);
-    int game_result_scene(ResultScene*);
-    int game_exit_scene(ExitScene*);
+    int game_pause_scene();
+    int game_result_scene();
+    int game_exit_scene();
 
     // game process of update event
-    int process_event_start_scene(StartScene*);
-    int process_event_setting_scene(SettingScene*);
-    int process_event_select_scene(SelectScene*);
+    int process_event_start_scene();
+    int process_event_setting_scene();
+    int process_event_select_scene();
     int process_event_run_scene();
-    int process_event_pause_scene(PauseScene*);
-    int process_event_result_scene(ResultScene*);
-    int process_event_exit_scene(ExitScene*);
+    int process_event_pause_scene();
+    int process_event_result_scene();
+    int process_event_exit_scene();
 
     // game control variables
     bool redraw = false;
@@ -97,6 +97,13 @@ private:
     ScoreBoard* score_board;
     Menu* player_1_menu;
     Menu* player_2_menu;
+
+    StartScene* start_scene;
+    SettingScene* setting_scene;
+    SelectScene* select_scene;
+    PauseScene* pause_scene;
+    ResultScene* result_scene;
+    ExitScene* exit_scene;
 
     ALLEGRO_DISPLAY* display = NULL;
 
@@ -121,9 +128,6 @@ private:
     ALLEGRO_SAMPLE_INSTANCE* effect_sound = NULL; // classified as effect sound
     ALLEGRO_SAMPLE_INSTANCE* result_sound = NULL; // classified as background sound
 
-    // the map that players choose, counting from 1 to ...
-    int game_map;
-
     // players' interface variables
     int holy_water_gain_speed;
     int player_1_holy_water_counter;
@@ -132,7 +136,11 @@ private:
     // mouse control
     float mouse_x, mouse_y;
 
-    vector<Minion*> MinionSet;
+    // minion set and tower set
+    vector<Minion*> Red_Team_Minion_Set;
+    vector<Minion*> Blue_Team_Minion_Set;
+    vector<Tower*> Red_Team_Tower_Set;
+    vector<Tower*> Blue_Team_Tower_Set;
 
     // player 1 is at left, player 2 is at right
     // player 1 control

@@ -23,7 +23,8 @@ PauseScene::~PauseScene()
 
 }
 
-void PauseScene::SceneInit()
+void
+PauseScene::SceneInit()
 {
     title_x = (window_width - title_width)/2;
     title_y = title_top;
@@ -43,7 +44,8 @@ void PauseScene::SceneInit()
     cout << "Pause scene is initialized\n";
 }
 
-void PauseScene::Draw()
+void
+PauseScene::Draw()
 {
     al_clear_to_color(al_map_rgb(100, 100, 100));
     al_draw_bitmap(background, 0, 0, 0);
@@ -82,7 +84,8 @@ void PauseScene::Draw()
     al_flip_display();
 }
 
-int PauseScene::LabelSelected(double pos_x, double pos_y)
+int
+PauseScene::LabelSelected(double pos_x, double pos_y)
 {
     if(pos_x >= continue_label_x && pos_x <= continue_label_x + continue_label_width && pos_y >= continue_label_y && pos_y <= continue_label_y + continue_label_height)
     {

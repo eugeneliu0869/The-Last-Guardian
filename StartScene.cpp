@@ -23,7 +23,8 @@ StartScene::~StartScene()
 
 }
 
-void StartScene::SceneInit()
+void
+StartScene::SceneInit()
 {
     title_x = (window_width - title_width)/2;
     title_y = title_top;
@@ -43,7 +44,8 @@ void StartScene::SceneInit()
     cout << "Start scene is initialized.\n";
 }
 
-void StartScene::Draw()
+void
+StartScene::Draw()
 {
     al_clear_to_color(al_map_rgb(100, 100, 100));
     al_draw_bitmap(background, 0, 0, 0);
@@ -82,7 +84,8 @@ void StartScene::Draw()
     al_flip_display();
 }
 
-int StartScene::LabelSelected(double pos_x, double pos_y)
+int
+StartScene::LabelSelected(double pos_x, double pos_y)
 {
     if(pos_x >= start_label_x && pos_x <= start_label_x + start_label_width && pos_y >= start_label_y && pos_y <= start_label_y + start_label_height)
     {
