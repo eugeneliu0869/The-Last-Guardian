@@ -4,6 +4,9 @@
 #include "global.h"
 #include "Circle.h"
 #include "Object.h"
+#include "RangeAttack.h"
+#include "MeleeAttack.h"
+#include <string>
 
 #define AIR_UNIT 1
 #define GROUND_UNIT 2
@@ -21,27 +24,34 @@ enum {LEFT=0, RIGHT, UP, DOWN};
 class Minion : public Object
 {
 public:
-    Minion(int, int, int);
+    Minion(int, int, int); // circles are defined in subclass
     ~Minion();
 
     bool OnTheBridge(double, double);
 
     void Draw();
     void find_way();
-    void Move(); // return false if stop, including attack
+    void Move();
 
     void LoadAnimation();
     virtual void LoadAttackAnimation() = 0;
 
-    bool DetectAttack();
-    void TriggerAttack();
+/// ATTACK RELATED FUNCTION
+    bool DetectMinion(Minion*);
+    void TriggerAttackMinion();
+    bool DetectTower(Tower*);
+    void TriggerAttackTower(Tower*);
+
     void UpdateAttack();
+    void resetAttackCounter() { attack_counter = 0; }
+
 
     int getHP() { return HealthPoint; }
     int getCost() { return cost; }
     int getTeam() { return team; }
     int getPathStage() { return path_stage; }
     int getIsAttack() { return is_attack; }
+    int getIsRange() { return is_range; }
 
     void setSpeed(double rate) { speed *= rate; }
     void setCost(double rate) { cost *= rate; }
@@ -58,28 +68,39 @@ protected:
     int HealthPoint = 20;
     int speed = 1;
     int cost = 5;
-    char name[20];
+    bool is_range;
+    std::string name = "Default";
+
+    int attack_frequency = 20;
+    int attack_counter = 0;
+    int attack_harm_point = 5;
+    int attack_velocity = 10; // if needed
+    ALLEGRO_SAMPLE* attack_sound = NULL;
+    ALLEGRO_BITMAP* arrow_img = NULL;
+
     // set of animation images
     std::vector<ALLEGRO_BITMAP*> moveImg;
-    std::vector<ALLEGRO_BITMAP*> attackImg;
+    std::vector<ALLEGRO_BITMAP*> attackImg; // attack animation
+    std::vector<Attack*> attack_set;
 private:
     // direction and index for "path"
     int cur_direction;
+    bool go_attack;
     bool is_attack;
+
 
     // animation counter
     int counter;
 
     int cur_sprite;
 
-    int path_stage = HEADING_TO_BRIDGE;
+    int path_stage;
     double unit_heading_x;
     double unit_heading_y;
 
-    int closest_tower_x;
-    int closest_tower_y;
+    double closest_tower_x;
+    double closest_tower_y;
 
-    // feel the need to redesign attack class
 
 } ;
 

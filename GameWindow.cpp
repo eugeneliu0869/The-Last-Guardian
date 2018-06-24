@@ -1,5 +1,7 @@
 #include "GameWindow.h"
 
+
+float RangeAttack::volume = 1.0;
 // constructor and destructor
 GameWindow::GameWindow()
 {

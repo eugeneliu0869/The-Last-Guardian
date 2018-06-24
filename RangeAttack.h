@@ -4,29 +4,19 @@
 #include "global.h"
 #include "Circle.h"
 #include "Object.h"
+#include "Attack.h"
 
-class Attack : public Object
+class RangeAttack : public Attack
 {
 public:
-    Attack(Circle*, Circle*, int, int, ALLEGRO_BITMAP*);
-    ~Attack();
+    RangeAttack(Circle* created_circle, Circle* target_circle,
+                           ALLEGRO_BITMAP* attack_img, ALLEGRO_SAMPLE* sample,
+                           int harm_point, int velocity);
+    ~RangeAttack();
 
     // override virtual function "Object::Draw"
-    void Draw();
-    int getHarmPoint() { return harm_point; }
+    void Draw() override;
 
-    static float volume;
-
-protected:
-    ALLEGRO_BITMAP *attack_img;
-    ALLEGRO_SAMPLE *sample;
-    ALLEGRO_SAMPLE_INSTANCE *arrow = NULL;
-
-private:
-    int attack_velocity = 8;
-    int harm_point = 5;
-    float pos_x, pos_y;
-    float direction_x, direction_y;
 };
 
 #endif // RANGEATTACK_H_INCLUDED
