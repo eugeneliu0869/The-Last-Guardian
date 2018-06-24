@@ -257,8 +257,12 @@ Minion::DetectMinion(Minion* minion)
 {
     bool willAttack = false;
     Attack *attack;
-
+    
     if(Circle::isOverlap(this->detect_circle, minion->getSelfCircle()))
+    {
+        this->detect_set.push_back(minion);
+    }
+    else if(Circle::isOverlap(this->attack_circle, minion->getSelfCircle()))
     {
         if (attack_counter == 0)
         {
@@ -308,7 +312,10 @@ Minion::TriggerAttackMinion(Minion* minion)
         }
         else
         {
-
+            if(Circle::isOverlap(this->getAttackCircle, minion->getSelfCircle())
+            {
+                is_attack = true;
+            }
         }
         if (is_attack)
         {
@@ -326,7 +333,7 @@ Minion::TriggerAttackMinion(Minion* minion)
     return false;
 }
 
-bool
+/*bool
 Minion::DetectTower(Tower* tower)
 {
     bool willAttack = false;
@@ -363,15 +370,56 @@ Minion::DetectTower(Tower* tower)
     }
 
     return willAttack;
-}
+}*/
 
-void
-Minion::TriggerAttackTower(Tower*)
+bool
+Minion::TriggerAttackTower(Tower* tower)
 {
+    bool isDestroyed = false;
 
+    for(unsigned int i = 0; i < this->attack_set.size(); i++)
+    {
+        if (getIsRange())
+        {
+            if(Circle::isOverlap(attack_set[i]->getSelfCircle(), tower->getSelfCircle()))
+            {
+                is_attack = true;
+            }
+        }
+        else
+        {
+            if(Circle::isOverlap(this->getAttackCircle, minion->getSelfCircle())
+            {
+                is_attack = true;
+            }
+        }
+        if (is_attack)
+        {
+            Attack* attack = attack_set[i];
+
+            isDestroyed = monster->Subtract_HP(this->attack_harm_point);
+            this->attack_set.erase(attack_set.begin() + i);
+            i--;
+            delete attack;
+            if (isDestroyed)    return true;
+        }
+
+
+    }
+    return false;
 }
 
 void UpdateAttack()
 {
+    for(unsigned int i=0; i < this->attack_set.size(); i++)
+    {
+        if(!Circle::isOverlap(this->attack_set[i]->getCircle(), this->attack_circle))
+        {
+            Attack *attack = this->attack_set[i];
 
+            this->attack_set.erase(this->attack_set.begin() + i);
+            i--;
+            delete attack;
+        }
+    }
 }
