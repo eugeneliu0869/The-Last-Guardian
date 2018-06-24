@@ -82,6 +82,7 @@ protected:
     std::vector<ALLEGRO_BITMAP*> moveImg;
     std::vector<ALLEGRO_BITMAP*> attackImg; // attack animation
     std::vector<Attack*> attack_set;
+    std::vector<Minion*> detect_set;
 private:
     // direction and index for "path"
     int cur_direction;
